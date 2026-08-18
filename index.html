@@ -24,7 +24,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
 <aside class="col"><section class="panel chat"><div class="title">HIVAI // BRAIN CONSOLE</div><div class="messages" id="messages"><div><b>CORE:</b> v1.2 gateway interface initialized.</div><div><b>CORE:</b> Send a command to the secure backend.</div></div><div class="input"><input id="input" placeholder="Ask HiVAI..." autocomplete="off"><button id="send">SEND</button></div></section><section class="panel mode"><div class="title">SYSTEM // ACTIVITY LOG</div><div class="log" id="log"><div>[BOOT] <b>SYSTEM</b> Gateway client ready</div><div>[BOOT] <b>SECURITY</b> Client holds no AI key</div><div>[BOOT] <b>BRAIN</b> Awaiting backend response</div></div></section><section class="panel"><div class="title">SYSTEM // MODULES</div><div class="log"><b>CORE</b> ONLINE<br><b>VOICE</b> ONLINE<br><b>BRAIN</b> READY<br><b>MEMORY</b> NEXT<br><b>TOOLS</b> NEXT</div></section></aside>
 </main>
 <script>
-const API_BASE=window.HIVAI_API_BASE||"http://127.0.0.1:8000";
+const API_BASE="/api";
 const $=id=>document.getElementById(id),mic=$('mic'),vs=$('vs'),state=$('state'),log=$('log'),messages=$('messages');
 function clock(){$('clock').textContent=new Date().toLocaleTimeString([],{hour12:false})}clock();setInterval(clock,1000);
 function addLog(t,m){let d=document.createElement('div');d.innerHTML='['+new Date().toLocaleTimeString([],{hour12:false})+'] <b>'+t+'</b> '+m;log.prepend(d);while(log.children.length>8)log.lastChild.remove()}
