@@ -3,39 +3,1387 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HiVAI v1.2 — Brain Gateway</title>
+<title>HiVAI v1.2 — Hive Intelligence Virtual AI System</title>
+
 <style>
-:root{--c:#00eaff;--bg:#02070b;--line:#10404b;--muted:#5d8e97;--text:#c9faff}
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(circle at 50% 48%,#071b23,#02070b 45%,#010306);color:var(--text);font-family:Consolas,"Courier New",monospace}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(#00eaff05 1px,transparent 1px),linear-gradient(90deg,#00eaff04 1px,transparent 1px);background-size:44px 44px}
-.top{height:62px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#01070bdd}.brand{display:flex;gap:13px;align-items:center}.mark{width:15px;height:15px;border:1px solid var(--c);transform:rotate(45deg);box-shadow:0 0 15px #00eaff77}.brand b{font-size:15px;letter-spacing:4px;color:var(--c)}.brand small{display:block;font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-top:3px}.stats{display:flex;gap:25px;font-size:8px;color:var(--muted);letter-spacing:1px}.stats b{color:var(--c);font-weight:400}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 9px var(--c);margin-right:6px}
-.layout{height:calc(100vh - 62px);display:grid;grid-template-columns:255px 1fr 310px;gap:15px;padding:15px}.col{display:flex;flex-direction:column;gap:14px;min-height:0}.panel{background:#031018d9;border:1px solid var(--line);padding:14px;position:relative;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));box-shadow:inset 0 0 25px #00eaff08}.panel:before{content:"";position:absolute;left:-1px;top:-1px;width:7px;height:7px;border-top:2px solid var(--c);border-left:2px solid var(--c)}.title{font-size:8px;letter-spacing:2px;color:var(--c);margin-bottom:13px}.row{display:flex;justify-content:space-between;font-size:8px;color:#68959d;margin:9px 0 5px}.row b{color:var(--c);font-weight:400}.bar{height:3px;background:#09232b}.bar i{display:block;height:100%;background:linear-gradient(90deg,#006070,var(--c));box-shadow:0 0 8px #00eaff66}
-.center{position:relative;display:flex;align-items:center;justify-content:center;border:1px solid #00eaff18;background:radial-gradient(circle,#00eaff08,transparent 50%);overflow:hidden}.corebox{width:min(470px,68vh);height:min(470px,68vh);position:relative;display:grid;place-items:center}.ring{position:absolute;border:1px solid #00eaff55;border-radius:50%}.r1{width:90%;height:90%;border-style:dashed;animation:spin 16s linear infinite}.r2{width:69%;height:69%;animation:rev 10s linear infinite}.r3{width:47%;height:47%;border-color:#00eaff88}.orbit{position:absolute;width:96%;height:96%;border-radius:50%;animation:spin 8s linear infinite}.orbit:before,.orbit:after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 15px 4px #00eaff88}.orbit:before{top:12%;left:17%}.orbit:after{right:12%;bottom:17%;width:5px;height:5px}.orbit2{width:74%;height:74%;animation:rev 5s linear infinite}.orbit2:before{top:7%;left:50%;width:5px;height:5px}.core{width:130px;height:130px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#0b4651,#06242c 42%,#020d12 70%,transparent 72%);border:1px solid var(--c);box-shadow:0 0 30px #00eaff55,inset 0 0 30px #00eaff22;animation:pulse 2.8s ease-in-out infinite}.core:before{content:"";position:absolute;width:108px;height:108px;border-radius:50%;border:1px solid #00eaff44;animation:rev 4s linear infinite}.ct{text-align:center;z-index:2}.ct strong{display:block;font-size:17px;letter-spacing:3px;color:var(--c);text-shadow:0 0 12px var(--c)}.ct span{font-size:7px;letter-spacing:2px;color:#8bd8e1}.state{position:absolute;bottom:80px;text-align:center;font-size:8px;letter-spacing:3px;color:var(--muted)}.state b{color:var(--c);font-weight:400}.voice{position:absolute;bottom:22px;display:flex;gap:9px;align-items:center}.mic{width:43px;height:43px;border-radius:50%;border:1px solid var(--c);background:#00eaff08;color:var(--c);cursor:pointer;box-shadow:0 0 15px #00eaff22;font-size:16px}.mic.active{background:#00eaff18;box-shadow:0 0 30px #00eaff66}.vstatus{border:1px solid var(--line);border-radius:18px;padding:10px 15px;font-size:8px;letter-spacing:2px;color:#68a0a8;background:#010a0ed9}
-.chat{height:190px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;font-size:8px;line-height:1.65;color:#79aab2}.messages div{margin:5px 0}.messages b{color:var(--c);font-weight:400}.input{display:flex;gap:6px;margin-top:7px}.input input{flex:1;min-width:0;background:#010a0e;border:1px solid var(--line);color:var(--text);padding:8px;font:8px Consolas}.input button{background:#00eaff0b;border:1px solid var(--c);color:var(--c);font:8px Consolas;cursor:pointer;padding:0 9px}.log{font-size:8px;line-height:2;color:#5f929b;overflow:hidden}.log b{color:var(--c);font-weight:400}.mode{flex:1}.state-list div{display:flex;justify-content:space-between;border-bottom:1px solid #0b2930;padding:7px 0;font-size:8px;color:#628e96}.state-list .on{color:var(--c)}
-@keyframes spin{to{transform:rotate(360deg)}}@keyframes rev{to{transform:rotate(-360deg)}}@keyframes pulse{50%{transform:scale(1.045);box-shadow:0 0 45px #00eaff66,inset 0 0 35px #00eaff2b}}
-@media(max-width:900px){.layout{grid-template-columns:1fr}.col{display:none}.center{height:calc(100vh - 77px)}.stats{display:none}}
+:root{
+    --c:#00eaff;
+    --bg:#02070b;
+    --line:#10404b;
+    --muted:#5d8e97;
+    --text:#c9faff;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    height:100%;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 50% 48%,#071b23,#02070b 45%,#010306);
+    color:var(--text);
+    font-family:Consolas,"Courier New",monospace;
+}
+
+body:before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:
+        linear-gradient(#00eaff05 1px,transparent 1px),
+        linear-gradient(90deg,#00eaff04 1px,transparent 1px);
+    background-size:44px 44px;
+}
+
+.top{
+    height:62px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 24px;
+    background:#01070bdd;
+}
+
+.brand{
+    display:flex;
+    gap:13px;
+    align-items:center;
+}
+
+.mark{
+    width:15px;
+    height:15px;
+    border:1px solid var(--c);
+    transform:rotate(45deg);
+    box-shadow:0 0 15px #00eaff77;
+}
+
+.brand b{
+    font-size:15px;
+    letter-spacing:4px;
+    color:var(--c);
+}
+
+.brand small{
+    display:block;
+    font-size:8px;
+    letter-spacing:1.5px;
+    color:var(--muted);
+    margin-top:3px;
+}
+
+.stats{
+    display:flex;
+    gap:25px;
+    font-size:8px;
+    color:var(--muted);
+    letter-spacing:1px;
+}
+
+.stats b{
+    color:var(--c);
+    font-weight:400;
+}
+
+.dot{
+    display:inline-block;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--c);
+    box-shadow:0 0 9px var(--c);
+    margin-right:6px;
+}
+
+.layout{
+    height:calc(100vh - 62px);
+    display:grid;
+    grid-template-columns:255px 1fr 310px;
+    gap:15px;
+    padding:15px;
+}
+
+.col{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    min-height:0;
+}
+
+.panel{
+    background:#031018d9;
+    border:1px solid var(--line);
+    padding:14px;
+    position:relative;
+    clip-path:polygon(
+        0 0,
+        calc(100% - 8px) 0,
+        100% 8px,
+        100% 100%,
+        8px 100%,
+        0 calc(100% - 8px)
+    );
+    box-shadow:inset 0 0 25px #00eaff08;
+}
+
+.panel:before{
+    content:"";
+    position:absolute;
+    left:-1px;
+    top:-1px;
+    width:7px;
+    height:7px;
+    border-top:2px solid var(--c);
+    border-left:2px solid var(--c);
+}
+
+.title{
+    font-size:8px;
+    letter-spacing:2px;
+    color:var(--c);
+    margin-bottom:13px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    font-size:8px;
+    color:#68959d;
+    margin:9px 0 5px;
+}
+
+.row b{
+    color:var(--c);
+    font-weight:400;
+}
+
+.bar{
+    height:3px;
+    background:#09232b;
+}
+
+.bar i{
+    display:block;
+    height:100%;
+    background:linear-gradient(90deg,#006070,var(--c));
+    box-shadow:0 0 8px #00eaff66;
+    transition:width .3s ease;
+}
+
+.center{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid #00eaff18;
+    background:radial-gradient(circle,#00eaff08,transparent 50%);
+    overflow:hidden;
+}
+
+.corebox{
+    width:min(470px,68vh);
+    height:min(470px,68vh);
+    position:relative;
+    display:grid;
+    place-items:center;
+}
+
+.ring{
+    position:absolute;
+    border:1px solid #00eaff55;
+    border-radius:50%;
+}
+
+.r1{
+    width:90%;
+    height:90%;
+    border-style:dashed;
+    animation:spin 16s linear infinite;
+}
+
+.r2{
+    width:69%;
+    height:69%;
+    animation:rev 10s linear infinite;
+}
+
+.r3{
+    width:47%;
+    height:47%;
+    border-color:#00eaff88;
+}
+
+.orbit{
+    position:absolute;
+    width:96%;
+    height:96%;
+    border-radius:50%;
+    animation:spin 8s linear infinite;
+}
+
+.orbit:before,
+.orbit:after{
+    content:"";
+    position:absolute;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--c);
+    box-shadow:0 0 15px 4px #00eaff88;
+}
+
+.orbit:before{
+    top:12%;
+    left:17%;
+}
+
+.orbit:after{
+    right:12%;
+    bottom:17%;
+    width:5px;
+    height:5px;
+}
+
+.orbit2{
+    width:74%;
+    height:74%;
+    animation:rev 5s linear infinite;
+}
+
+.orbit2:before{
+    top:7%;
+    left:50%;
+    width:5px;
+    height:5px;
+}
+
+.core{
+    width:130px;
+    height:130px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    background:
+        radial-gradient(
+            circle,
+            #0b4651,
+            #06242c 42%,
+            #020d12 70%,
+            transparent 72%
+        );
+    border:1px solid var(--c);
+    box-shadow:
+        0 0 30px #00eaff55,
+        inset 0 0 30px #00eaff22;
+    animation:pulse 2.8s ease-in-out infinite;
+}
+
+.core:before{
+    content:"";
+    position:absolute;
+    width:108px;
+    height:108px;
+    border-radius:50%;
+    border:1px solid #00eaff44;
+    animation:rev 4s linear infinite;
+}
+
+.ct{
+    text-align:center;
+    z-index:2;
+}
+
+.ct strong{
+    display:block;
+    font-size:17px;
+    letter-spacing:3px;
+    color:var(--c);
+    text-shadow:0 0 12px var(--c);
+}
+
+.ct span{
+    font-size:7px;
+    letter-spacing:2px;
+    color:#8bd8e1;
+}
+
+.state{
+    position:absolute;
+    bottom:80px;
+    text-align:center;
+    font-size:8px;
+    letter-spacing:3px;
+    color:var(--muted);
+}
+
+.state b{
+    color:var(--c);
+    font-weight:400;
+}
+
+.voice{
+    position:absolute;
+    bottom:22px;
+    display:flex;
+    gap:9px;
+    align-items:center;
+}
+
+.mic{
+    width:43px;
+    height:43px;
+    border-radius:50%;
+    border:1px solid var(--c);
+    background:#00eaff08;
+    color:var(--c);
+    cursor:pointer;
+    box-shadow:0 0 15px #00eaff22;
+    font-size:16px;
+}
+
+.mic.active{
+    background:#00eaff18;
+    box-shadow:0 0 30px #00eaff66;
+}
+
+.vstatus{
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:10px 15px;
+    font-size:8px;
+    letter-spacing:2px;
+    color:#68a0a8;
+    background:#010a0ed9;
+}
+
+.chat{
+    height:190px;
+    display:flex;
+    flex-direction:column;
+}
+
+.messages{
+    flex:1;
+    overflow:auto;
+    font-size:8px;
+    line-height:1.65;
+    color:#79aab2;
+}
+
+.messages div{
+    margin:5px 0;
+}
+
+.messages b{
+    color:var(--c);
+    font-weight:400;
+}
+
+.input{
+    display:flex;
+    gap:6px;
+    margin-top:7px;
+}
+
+.input input{
+    flex:1;
+    min-width:0;
+    background:#010a0e;
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:8px;
+    font:8px Consolas;
+    outline:none;
+}
+
+.input input:focus{
+    border-color:var(--c);
+}
+
+.input button{
+    background:#00eaff0b;
+    border:1px solid var(--c);
+    color:var(--c);
+    font:8px Consolas;
+    cursor:pointer;
+    padding:0 9px;
+}
+
+.log{
+    font-size:8px;
+    line-height:2;
+    color:#5f929b;
+    overflow:hidden;
+}
+
+.log b{
+    color:var(--c);
+    font-weight:400;
+}
+
+.mode{
+    flex:1;
+}
+
+.state-list div{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid #0b2930;
+    padding:7px 0;
+    font-size:8px;
+    color:#628e96;
+}
+
+.state-list .on{
+    color:var(--c);
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+@keyframes rev{
+    to{
+        transform:rotate(-360deg);
+    }
+}
+
+@keyframes pulse{
+    50%{
+        transform:scale(1.045);
+        box-shadow:
+            0 0 45px #00eaff66,
+            inset 0 0 35px #00eaff2b;
+    }
+}
+
+@media(max-width:900px){
+    .layout{
+        grid-template-columns:1fr;
+    }
+
+    .col{
+        display:none;
+    }
+
+    .center{
+        height:calc(100vh - 77px);
+    }
+
+    .stats{
+        display:none;
+    }
+}
 </style>
 </head>
+
 <body>
-<header class="top"><div class="brand"><span class="mark"></span><div><b>HIVAI</b><small>HIVE INTELLIGENCE VIRTUAL AI SYSTEM // V1.2</small></div></div><div class="stats"><span>STATUS <b><i class="dot"></i><span id="status">OPTIMAL</span></b></span><span>LOCAL TIME <b id="clock">--:--:--</b></span><span>GATEWAY <b id="gateway">STANDBY</b></span><span>SIR // USER</span></div></header>
+
+<header class="top">
+
+    <div class="brand">
+        <span class="mark"></span>
+
+        <div>
+            <b>HIVAI</b>
+            <small>
+                HIVE INTELLIGENCE VIRTUAL AI SYSTEM // V1.2
+            </small>
+        </div>
+    </div>
+
+    <div class="stats">
+
+        <span>
+            STATUS
+            <b>
+                <i class="dot"></i>
+                <span id="status">OPTIMAL</span>
+            </b>
+        </span>
+
+        <span>
+            LOCAL TIME
+            <b id="clock">--:--:--</b>
+        </span>
+
+        <span>
+            GATEWAY
+            <b id="gateway">STANDBY</b>
+        </span>
+
+        <span>SIR // USER</span>
+
+    </div>
+
+</header>
+
+
 <main class="layout">
-<aside class="col"><section class="panel"><div class="title">SYSTEM // BRAIN GATEWAY</div><div class="row"><span>GATEWAY</span><b id="gwstate">STANDBY</b></div><div class="bar"><i id="gwbar" style="width:12%"></i></div><div class="row"><span>AI PROVIDER</span><b id="provider">UNKNOWN</b></div><div class="row"><span>SESSION</span><b>LOCAL</b></div></section><section class="panel mode"><div class="title">SYSTEM // STATE ENGINE</div><div class="state-list"><div id="idle">IDLE <span>●</span></div><div id="listen">LISTENING <span>○</span></div><div id="think">THINKING <span>○</span></div><div id="speak">SPEAKING <span>○</span></div></div></section><section class="panel"><div class="title">SYSTEM // SECURITY</div><div class="log"><b>KEY STORAGE</b> SERVER ONLY<br>CLIENT KEY: NONE<br>GATEWAY: PROTECTED</div></section></aside>
-<section class="center"><div class="corebox"><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="orbit"></div><div class="orbit orbit2"></div><div class="core"><div class="ct"><strong>CORE</strong><span id="coresub">HIVAI // IDLE</span></div></div></div><div class="state">SYSTEM // <b id="state">AWAITING COMMAND</b></div><div class="voice"><button class="mic" id="mic">◉</button><div class="vstatus" id="vs">MIC // READY</div></div></section>
-<aside class="col"><section class="panel chat"><div class="title">HIVAI // BRAIN CONSOLE</div><div class="messages" id="messages"><div><b>CORE:</b> v1.2 gateway interface initialized.</div><div><b>CORE:</b> Send a command to the secure backend.</div></div><div class="input"><input id="input" placeholder="Ask HiVAI..." autocomplete="off"><button id="send">SEND</button></div></section><section class="panel mode"><div class="title">SYSTEM // ACTIVITY LOG</div><div class="log" id="log"><div>[BOOT] <b>SYSTEM</b> Gateway client ready</div><div>[BOOT] <b>SECURITY</b> Client holds no AI key</div><div>[BOOT] <b>BRAIN</b> Awaiting backend response</div></div></section><section class="panel"><div class="title">SYSTEM // MODULES</div><div class="log"><b>CORE</b> ONLINE<br><b>VOICE</b> ONLINE<br><b>BRAIN</b> READY<br><b>MEMORY</b> NEXT<br><b>TOOLS</b> NEXT</div></section></aside>
+
+<!-- LEFT -->
+
+<aside class="col">
+
+<section class="panel">
+
+    <div class="title">
+        SYSTEM // BRAIN GATEWAY
+    </div>
+
+    <div class="row">
+        <span>GATEWAY</span>
+        <b id="gwstate">STANDBY</b>
+    </div>
+
+    <div class="bar">
+        <i id="gwbar" style="width:12%"></i>
+    </div>
+
+    <div class="row">
+        <span>AI CORE</span>
+        <b id="provider">HIVAI CORE</b>
+    </div>
+
+    <div class="row">
+        <span>SESSION</span>
+        <b>LOCAL</b>
+    </div>
+
+</section>
+
+
+<section class="panel mode">
+
+    <div class="title">
+        SYSTEM // STATE ENGINE
+    </div>
+
+    <div class="state-list">
+
+        <div id="idle">
+            IDLE
+            <span>●</span>
+        </div>
+
+        <div id="listen">
+            LISTENING
+            <span>○</span>
+        </div>
+
+        <div id="think">
+            THINKING
+            <span>○</span>
+        </div>
+
+        <div id="speak">
+            SPEAKING
+            <span>○</span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="title">
+        SYSTEM // SECURITY
+    </div>
+
+    <div class="log">
+        <b>KEY STORAGE</b> SERVER ONLY<br>
+        CLIENT KEY: NONE<br>
+        GATEWAY: PROTECTED
+    </div>
+
+</section>
+
+</aside>
+
+
+<!-- CENTER -->
+
+<section class="center">
+
+<div class="corebox">
+
+    <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="ring r3"></div>
+
+    <div class="orbit"></div>
+    <div class="orbit orbit2"></div>
+
+    <div class="core">
+
+        <div class="ct">
+
+            <strong>CORE</strong>
+
+            <span id="coresub">
+                HIVAI // IDLE
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="state">
+    SYSTEM //
+    <b id="state">AWAITING COMMAND</b>
+</div>
+
+
+<div class="voice">
+
+    <button class="mic" id="mic">
+        ◉
+    </button>
+
+    <div class="vstatus" id="vs">
+        MIC // READY
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- RIGHT -->
+
+<aside class="col">
+
+<section class="panel chat">
+
+    <div class="title">
+        HIVAI // BRAIN CONSOLE
+    </div>
+
+    <div class="messages" id="messages">
+
+        <div>
+            <b>CORE:</b>
+            v1.2 interface initialized.
+        </div>
+
+        <div>
+            <b>CORE:</b>
+            Secure brain gateway ready.
+        </div>
+
+    </div>
+
+
+    <div class="input">
+
+        <input
+            id="input"
+            placeholder="Ask HiVAI..."
+            autocomplete="off"
+        >
+
+        <button id="send">
+            SEND
+        </button>
+
+    </div>
+
+</section>
+
+
+<section class="panel mode">
+
+    <div class="title">
+        SYSTEM // ACTIVITY LOG
+    </div>
+
+    <div class="log" id="log">
+
+        <div>
+            [BOOT]
+            <b>SYSTEM</b>
+            Gateway client ready
+        </div>
+
+        <div>
+            [BOOT]
+            <b>SECURITY</b>
+            Client holds no AI key
+        </div>
+
+        <div>
+            [BOOT]
+            <b>BRAIN</b>
+            Awaiting backend response
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="title">
+        SYSTEM // MODULES
+    </div>
+
+    <div class="log">
+
+        <b>CORE</b> ONLINE<br>
+        <b>VOICE</b> ONLINE<br>
+        <b>BRAIN</b> READY<br>
+        <b>MEMORY</b> NEXT<br>
+        <b>TOOLS</b> NEXT
+
+    </div>
+
+</section>
+
+</aside>
+
 </main>
+
+
 <script>
-const API_BASE="/api";
-const $=id=>document.getElementById(id),mic=$('mic'),vs=$('vs'),state=$('state'),log=$('log'),messages=$('messages');
-function clock(){$('clock').textContent=new Date().toLocaleTimeString([],{hour12:false})}clock();setInterval(clock,1000);
-function addLog(t,m){let d=document.createElement('div');d.innerHTML='['+new Date().toLocaleTimeString([],{hour12:false})+'] <b>'+t+'</b> '+m;log.prepend(d);while(log.children.length>8)log.lastChild.remove()}
-function setState(s){let a={idle:['AWAITING COMMAND','HIVAI // IDLE'],listen:['LISTENING','HIVAI // LISTENING'],think:['THINKING','HIVAI // THINKING'],speak:['SPEAKING','HIVAI // SPEAKING']}[s];state.textContent=a[0];$('coresub').textContent=a[1];['idle','listen','think','speak'].forEach(x=>$(x).className=x===s?'on':'')}
-function safe(x){return x.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-async function ask(text){if(!text)return;messages.insertAdjacentHTML('beforeend','<div><b>YOU:</b> '+safe(text)+'</div>');messages.scrollTop=messages.scrollHeight;setState('think');$('gateway').textContent='PROCESSING';$('gwstate').textContent='PROCESSING';$('gwbar').style.width='75%';addLog('BRAIN','Sending secure request');try{let r=await fetch(API_BASE+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,session_id:'local'})});if(!r.ok)throw new Error('HTTP '+r.status);let d=await r.json();$('provider').textContent=safe(d.provider).slice(0,18);messages.insertAdjacentHTML('beforeend','<div><b>HIVAI:</b> '+safe(d.reply)+'</div>');messages.scrollTop=messages.scrollHeight;setState('speak');$('gateway').textContent='ONLINE';$('gwstate').textContent='ONLINE';$('gwbar').style.width='100%';addLog('CORE','Response received from '+safe(d.provider));speak(d.reply);setTimeout(()=>setState('idle'),1100)}catch(e){messages.insertAdjacentHTML('beforeend','<div><b>HIVAI:</b> Gateway unavailable. Start the FastAPI backend and try again.</div>');setState('idle');$('gateway').textContent='OFFLINE';$('gwstate').textContent='OFFLINE';$('gwbar').style.width='0%';addLog('ERROR','Backend unavailable');}}
-$('send').onclick=()=>{let x=$('input').value.trim();$('input').value='';ask(x)};$('input').onkeydown=e=>{if(e.key==='Enter')$('send').click()};
-function speak(text){if('speechSynthesis' in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.rate=.95;u.pitch=.9;u.onstart=()=>setState('speak');speechSynthesis.speak(u)}}
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(SR){let r=new SR();r.lang='en-IN';r.interimResults=false;r.continuous=false;r.onstart=()=>{mic.classList.add('active');vs.textContent='LISTENING // SPEAK NOW';setState('listen');addLog('VOICE','Input channel active')};r.onresult=e=>{let text=e.results[0][0].transcript;vs.textContent='INPUT CAPTURED';addLog('USER',text);ask(text)};r.onerror=()=>{mic.classList.remove('active');vs.textContent='MIC // ERROR';setState('idle')};r.onend=()=>mic.classList.remove('active');mic.onclick=()=>{try{r.start()}catch(e){r.stop()}}}else{vs.textContent='MIC // UNSUPPORTED';mic.onclick=()=>alert('Use Chrome or Edge for browser speech recognition.')}
-fetch(API_BASE+'/api/health').then(r=>r.json()).then(d=>{$('gateway').textContent='ONLINE';$('gwstate').textContent='ONLINE';$('gwbar').style.width='100%';addLog('GATEWAY','Health check passed')}).catch(()=>addLog('GATEWAY','Backend not detected — UI still available'));
+
+/* =========================================================
+   HiVAI API CONFIGURATION
+   ========================================================= */
+
+const API_BASE = "/api";
+
+
+/* =========================================================
+   DOM REFERENCES
+   ========================================================= */
+
+const $ = id => document.getElementById(id);
+
+const mic = $("mic");
+const vs = $("vs");
+const state = $("state");
+const log = $("log");
+const messages = $("messages");
+
+
+/* =========================================================
+   CLOCK
+   ========================================================= */
+
+function clock(){
+
+    $("clock").textContent =
+        new Date().toLocaleTimeString(
+            [],
+            {
+                hour12:false
+            }
+        );
+
+}
+
+clock();
+
+setInterval(clock,1000);
+
+
+/* =========================================================
+   LOGGING
+   ========================================================= */
+
+function addLog(type,message){
+
+    const d = document.createElement("div");
+
+    d.textContent =
+        "[" +
+        new Date().toLocaleTimeString(
+            [],
+            {
+                hour12:false
+            }
+        ) +
+        "] " +
+        type +
+        " " +
+        message;
+
+    log.prepend(d);
+
+    while(log.children.length > 8){
+        log.lastChild.remove();
+    }
+
+}
+
+
+/* =========================================================
+   SYSTEM STATE
+   ========================================================= */
+
+function setState(s){
+
+    const states = {
+
+        idle:[
+            "AWAITING COMMAND",
+            "HIVAI // IDLE"
+        ],
+
+        listen:[
+            "LISTENING",
+            "HIVAI // LISTENING"
+        ],
+
+        think:[
+            "THINKING",
+            "HIVAI // THINKING"
+        ],
+
+        speak:[
+            "SPEAKING",
+            "HIVAI // SPEAKING"
+        ]
+
+    };
+
+    const current = states[s];
+
+    if(!current) return;
+
+    state.textContent = current[0];
+
+    $("coresub").textContent = current[1];
+
+    [
+        "idle",
+        "listen",
+        "think",
+        "speak"
+    ].forEach(x => {
+
+        $(x).className =
+            x === s
+                ? "on"
+                : "";
+
+    });
+
+}
+
+
+/* =========================================================
+   SAFE HTML
+   ========================================================= */
+
+function safe(value){
+
+    return String(value ?? "")
+        .replace(
+            /[&<>]/g,
+            char => ({
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;"
+            }[char])
+        );
+
+}
+
+
+/* =========================================================
+   CHAT REQUEST
+   ========================================================= */
+
+async function ask(text){
+
+    if(!text) return;
+
+
+    /* USER MESSAGE */
+
+    messages.insertAdjacentHTML(
+        "beforeend",
+        "<div><b>YOU:</b> " +
+        safe(text) +
+        "</div>"
+    );
+
+    messages.scrollTop =
+        messages.scrollHeight;
+
+
+    /* THINKING */
+
+    setState("think");
+
+    $("gateway").textContent =
+        "PROCESSING";
+
+    $("gwstate").textContent =
+        "PROCESSING";
+
+    $("gwbar").style.width =
+        "75%";
+
+    addLog(
+        "BRAIN",
+        "Sending secure request"
+    );
+
+
+    try{
+
+        /*
+         * IMPORTANT:
+         *
+         * API_BASE = "/api"
+         *
+         * Therefore this MUST be:
+         *
+         * /api/chat
+         *
+         * NOT:
+         *
+         * /api/api/chat
+         */
+
+        const response =
+            await fetch(
+                API_BASE + "/chat",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+                        message:text,
+                        session_id:"local"
+                    })
+                }
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        /* =================================================
+           SUCCESS
+           ================================================= */
+
+        /*
+         * We intentionally don't display
+         * the underlying AI provider.
+         */
+
+        $("provider").textContent =
+            "HIVAI CORE";
+
+
+        const reply =
+            data.reply ||
+            "I received your request, but no response was returned.";
+
+
+        messages.insertAdjacentHTML(
+            "beforeend",
+            "<div><b>HIVAI:</b> " +
+            safe(reply) +
+            "</div>"
+        );
+
+        messages.scrollTop =
+            messages.scrollHeight;
+
+
+        setState("speak");
+
+        $("gateway").textContent =
+            "ONLINE";
+
+        $("gwstate").textContent =
+            "ONLINE";
+
+        $("gwbar").style.width =
+            "100%";
+
+        addLog(
+            "CORE",
+            "Response received"
+        );
+
+
+        speak(reply);
+
+
+        setTimeout(
+            () => setState("idle"),
+            1100
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "HiVAI Gateway Error:",
+            error
+        );
+
+
+        messages.insertAdjacentHTML(
+            "beforeend",
+            "<div><b>HIVAI:</b> Gateway unavailable. Check the secure brain gateway.</div>"
+        );
+
+
+        setState("idle");
+
+        $("gateway").textContent =
+            "OFFLINE";
+
+        $("gwstate").textContent =
+            "OFFLINE";
+
+        $("gwbar").style.width =
+            "0%";
+
+
+        addLog(
+            "ERROR",
+            "Backend unavailable"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SEND BUTTON
+   ========================================================= */
+
+$("send").onclick = () => {
+
+    const text =
+        $("input").value.trim();
+
+    $("input").value = "";
+
+    ask(text);
+
+};
+
+
+/* =========================================================
+   ENTER KEY
+   ========================================================= */
+
+$("input").onkeydown = event => {
+
+    if(event.key === "Enter"){
+
+        $("send").click();
+
+    }
+
+};
+
+
+/* =========================================================
+   TEXT TO SPEECH
+   ========================================================= */
+
+function speak(text){
+
+    if(
+        "speechSynthesis"
+        in window
+    ){
+
+        speechSynthesis.cancel();
+
+
+        const utterance =
+            new SpeechSynthesisUtterance(
+                text
+            );
+
+
+        utterance.rate =
+            0.95;
+
+        utterance.pitch =
+            0.9;
+
+
+        utterance.onstart = () => {
+
+            setState("speak");
+
+        };
+
+
+        utterance.onend = () => {
+
+            setState("idle");
+
+        };
+
+
+        speechSynthesis.speak(
+            utterance
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   VOICE INPUT
+   ========================================================= */
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+if(SpeechRecognition){
+
+    const recognition =
+        new SpeechRecognition();
+
+
+    recognition.lang =
+        "en-IN";
+
+    recognition.interimResults =
+        false;
+
+    recognition.continuous =
+        false;
+
+
+    recognition.onstart = () => {
+
+        mic.classList.add(
+            "active"
+        );
+
+        vs.textContent =
+            "LISTENING // SPEAK NOW";
+
+        setState("listen");
+
+        addLog(
+            "VOICE",
+            "Input channel active"
+        );
+
+    };
+
+
+    recognition.onresult = event => {
+
+        const text =
+            event
+                .results[0][0]
+                .transcript;
+
+
+        vs.textContent =
+            "INPUT CAPTURED";
+
+
+        addLog(
+            "USER",
+            text
+        );
+
+
+        ask(text);
+
+    };
+
+
+    recognition.onerror = event => {
+
+        console.error(
+            "Voice error:",
+            event.error
+        );
+
+
+        mic.classList.remove(
+            "active"
+        );
+
+        vs.textContent =
+            "MIC // ERROR";
+
+        setState("idle");
+
+    };
+
+
+    recognition.onend = () => {
+
+        mic.classList.remove(
+            "active"
+        );
+
+    };
+
+
+    mic.onclick = () => {
+
+        try{
+
+            recognition.start();
+
+        }catch(error){
+
+            try{
+                recognition.stop();
+            }catch(e){}
+
+        }
+
+    };
+
+}else{
+
+    vs.textContent =
+        "MIC // UNSUPPORTED";
+
+
+    mic.onclick = () => {
+
+        alert(
+            "Use Chrome or Edge for browser speech recognition."
+        );
+
+    };
+
+}
+
+
+/* =========================================================
+   GATEWAY HEALTH CHECK
+   ========================================================= */
+
+async function checkGateway(){
+
+    try{
+
+        const response =
+            await fetch(
+                API_BASE + "/health",
+                {
+                    method:"GET",
+                    cache:"no-store"
+                }
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        /* Gateway online */
+
+        $("gateway").textContent =
+            "ONLINE";
+
+        $("gwstate").textContent =
+            "ONLINE";
+
+        $("gwbar").style.width =
+            "100%";
+
+
+        $("provider").textContent =
+            "HIVAI CORE";
+
+
+        addLog(
+            "GATEWAY",
+            "Health check passed"
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Health check failed:",
+            error
+        );
+
+
+        $("gateway").textContent =
+            "OFFLINE";
+
+        $("gwstate").textContent =
+            "OFFLINE";
+
+        $("gwbar").style.width =
+            "0%";
+
+
+        addLog(
+            "GATEWAY",
+            "Backend not detected"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   STARTUP
+   ========================================================= */
+
+setState("idle");
+
+checkGateway();
+
 </script>
+
 </body>
 </html>
