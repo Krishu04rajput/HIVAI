@@ -8,6 +8,10 @@ Browser HUD -> FastAPI gateway -> AI provider
 
 The API key stays on the backend. It is never placed in `index.html`.
 
+## Preview
+
+![HiVAI Core System - Energy Intelligence Nexus](https://github.com/Krishu04rajput/HIVAI/assets/1/preview-hivai-core.png)
+
 ## Run locally
 
 1. Create a virtual environment.
@@ -30,4 +34,4 @@ The configured provider endpoint should accept an OpenAI-compatible Chat Complet
 
 ## Security note
 
-Do not put a real API key in GitHub Pages, JavaScript, HTML, README files, screenshots, or client-side environment variables. Store secrets in the backend hosting platform's secret/environment-variable system.
+Do not put a real API key in GitHub Pages, JavaScript, HTML, README files, screenshots, or client-side environment variables. Store secrets in the backend hosting platform's secret/environment-variables.
