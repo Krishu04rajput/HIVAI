@@ -3,27 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HiVAI v1.2 — Hive Intelligence Virtual AI System</title>
+
+<title>HIVAI — Hive Intelligence Virtual AI System</title>
 
 <style>
+
 :root{
-    --c:#00eaff;
-    --bg:#02070b;
-    --line:#10404b;
-    --muted:#5d8e97;
-    --text:#c9faff;
+    --cyan:#00eaff;
+    --cyan2:#008cff;
+    --orange:#ff7a00;
+    --orange2:#ffb000;
+    --bg:#010509;
+    --text:#d8fbff;
 }
 
-*{box-sizing:border-box}
+*{
+    box-sizing:border-box;
+}
 
-html,body{
+html,
+body{
     margin:0;
+    width:100%;
     height:100%;
     overflow:hidden;
-    background:
-        radial-gradient(circle at 50% 48%,#071b23,#02070b 45%,#010306);
+    background:#010509;
     color:var(--text);
     font-family:Consolas,"Courier New",monospace;
+}
+
+/* =========================
+   BACKGROUND
+========================= */
+
+body{
+    background:
+        radial-gradient(
+            circle at 50% 48%,
+            #06242c 0%,
+            #020d12 22%,
+            #010509 58%,
+            #000204 100%
+        );
 }
 
 body:before{
@@ -31,415 +52,687 @@ body:before{
     position:fixed;
     inset:0;
     pointer-events:none;
+
     background:
-        linear-gradient(#00eaff05 1px,transparent 1px),
-        linear-gradient(90deg,#00eaff04 1px,transparent 1px);
-    background-size:44px 44px;
+        linear-gradient(
+            rgba(0,234,255,.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(0,234,255,.025) 1px,
+            transparent 1px
+        );
+
+    background-size:42px 42px;
 }
 
+body:after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 35%,
+            rgba(0,0,0,.72) 100%
+        );
+}
+
+/* =========================
+   TOP BAR
+========================= */
+
 .top{
-    height:62px;
-    border-bottom:1px solid var(--line);
+
+    position:absolute;
+    z-index:20;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:64px;
+
     display:flex;
     align-items:center;
     justify-content:space-between;
+
     padding:0 24px;
-    background:#01070bdd;
+
+    border-bottom:1px solid rgba(0,234,255,.18);
+
+    background:rgba(1,7,11,.72);
+
+    backdrop-filter:blur(12px);
 }
 
 .brand{
     display:flex;
-    gap:13px;
     align-items:center;
+    gap:13px;
 }
 
-.mark{
-    width:15px;
-    height:15px;
-    border:1px solid var(--c);
+.logo{
+    width:17px;
+    height:17px;
+
+    border:1px solid var(--cyan);
+
     transform:rotate(45deg);
-    box-shadow:0 0 15px #00eaff77;
+
+    box-shadow:
+        0 0 8px var(--cyan),
+        0 0 22px rgba(0,234,255,.4);
+
+    animation:logoPulse 2s infinite;
 }
 
 .brand b{
+    color:var(--cyan);
+    letter-spacing:5px;
     font-size:15px;
-    letter-spacing:4px;
-    color:var(--c);
 }
 
 .brand small{
     display:block;
-    font-size:8px;
-    letter-spacing:1.5px;
-    color:var(--muted);
+
     margin-top:3px;
+
+    color:#548892;
+
+    font-size:7px;
+    letter-spacing:2px;
 }
 
 .stats{
     display:flex;
-    gap:25px;
+    gap:28px;
+
+    color:#527c84;
+
     font-size:8px;
-    color:var(--muted);
     letter-spacing:1px;
 }
 
 .stats b{
-    color:var(--c);
+    color:var(--cyan);
     font-weight:400;
 }
 
 .dot{
     display:inline-block;
+
     width:6px;
     height:6px;
-    border-radius:50%;
-    background:var(--c);
-    box-shadow:0 0 9px var(--c);
+
     margin-right:6px;
+
+    border-radius:50%;
+
+    background:var(--cyan);
+
+    box-shadow:0 0 12px var(--cyan);
 }
 
-.layout{
-    height:calc(100vh - 62px);
+/* =========================
+   MAIN
+========================= */
+
+.main{
+    position:absolute;
+    inset:64px 0 0;
+
     display:grid;
-    grid-template-columns:255px 1fr 310px;
+
+    grid-template-columns:
+        240px
+        minmax(400px,1fr)
+        280px;
+
     gap:15px;
+
     padding:15px;
 }
 
-.col{
+/* =========================
+   SIDE PANELS
+========================= */
+
+.side{
     display:flex;
     flex-direction:column;
     gap:14px;
-    min-height:0;
 }
 
 .panel{
-    background:#031018d9;
-    border:1px solid var(--line);
-    padding:14px;
+
     position:relative;
+
+    padding:14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,234,255,.035),
+            rgba(0,0,0,.3)
+        );
+
+    border:1px solid rgba(0,234,255,.16);
+
     clip-path:polygon(
         0 0,
-        calc(100% - 8px) 0,
-        100% 8px,
+        calc(100% - 9px) 0,
+        100% 9px,
         100% 100%,
-        8px 100%,
-        0 calc(100% - 8px)
+        9px 100%,
+        0 calc(100% - 9px)
     );
-    box-shadow:inset 0 0 25px #00eaff08;
+
+    box-shadow:
+        inset 0 0 30px rgba(0,234,255,.025);
 }
 
 .panel:before{
     content:"";
+
     position:absolute;
+
     left:-1px;
     top:-1px;
-    width:7px;
-    height:7px;
-    border-top:2px solid var(--c);
-    border-left:2px solid var(--c);
+
+    width:8px;
+    height:8px;
+
+    border-left:2px solid var(--cyan);
+    border-top:2px solid var(--cyan);
 }
 
 .title{
+
+    color:var(--cyan);
+
     font-size:8px;
     letter-spacing:2px;
-    color:var(--c);
-    margin-bottom:13px;
+
+    margin-bottom:15px;
 }
 
-.row{
+.statrow{
+
     display:flex;
     justify-content:space-between;
+
+    color:#58828a;
+
     font-size:8px;
-    color:#68959d;
-    margin:9px 0 5px;
+
+    margin:11px 0 5px;
 }
 
-.row b{
-    color:var(--c);
+.statrow b{
+    color:var(--cyan);
     font-weight:400;
 }
 
 .bar{
+
+    width:100%;
     height:3px;
-    background:#09232b;
+
+    background:#082029;
 }
 
 .bar i{
+
     display:block;
     height:100%;
-    background:linear-gradient(90deg,#006070,var(--c));
-    box-shadow:0 0 8px #00eaff66;
-    transition:width .3s ease;
+
+    background:
+        linear-gradient(
+            90deg,
+            #006071,
+            var(--cyan)
+        );
+
+    box-shadow:
+        0 0 9px rgba(0,234,255,.55);
+
+    transition:width .4s;
 }
 
+/* =========================
+   CENTER
+========================= */
+
 .center{
+
     position:relative;
+
+    overflow:hidden;
+
+    border:1px solid rgba(0,234,255,.08);
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(0,234,255,.055),
+            transparent 43%
+        );
+}
+
+/* canvas */
+
+#coreCanvas{
+
+    position:absolute;
+
+    inset:0;
+
+    width:100%;
+    height:100%;
+}
+
+/* =========================
+   CORE UI
+========================= */
+
+.coreUI{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    width:180px;
+    height:180px;
+
     display:flex;
     align-items:center;
     justify-content:center;
-    border:1px solid #00eaff18;
-    background:radial-gradient(circle,#00eaff08,transparent 50%);
-    overflow:hidden;
+
+    pointer-events:none;
 }
 
-.corebox{
-    width:min(470px,68vh);
-    height:min(470px,68vh);
-    position:relative;
-    display:grid;
-    place-items:center;
-}
+.reactor{
 
-.ring{
-    position:absolute;
-    border:1px solid #00eaff55;
+    width:92px;
+    height:92px;
+
     border-radius:50%;
-}
 
-.r1{
-    width:90%;
-    height:90%;
-    border-style:dashed;
-    animation:spin 16s linear infinite;
-}
-
-.r2{
-    width:69%;
-    height:69%;
-    animation:rev 10s linear infinite;
-}
-
-.r3{
-    width:47%;
-    height:47%;
-    border-color:#00eaff88;
-}
-
-.orbit{
-    position:absolute;
-    width:96%;
-    height:96%;
-    border-radius:50%;
-    animation:spin 8s linear infinite;
-}
-
-.orbit:before,
-.orbit:after{
-    content:"";
-    position:absolute;
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:var(--c);
-    box-shadow:0 0 15px 4px #00eaff88;
-}
-
-.orbit:before{
-    top:12%;
-    left:17%;
-}
-
-.orbit:after{
-    right:12%;
-    bottom:17%;
-    width:5px;
-    height:5px;
-}
-
-.orbit2{
-    width:74%;
-    height:74%;
-    animation:rev 5s linear infinite;
-}
-
-.orbit2:before{
-    top:7%;
-    left:50%;
-    width:5px;
-    height:5px;
-}
-
-.core{
-    width:130px;
-    height:130px;
-    border-radius:50%;
-    display:grid;
-    place-items:center;
     background:
+
         radial-gradient(
             circle,
-            #0b4651,
-            #06242c 42%,
-            #020d12 70%,
+            #d9ffff 0%,
+            var(--cyan) 8%,
+            #00798a 22%,
+            #003943 38%,
+            #00151b 62%,
             transparent 72%
         );
-    border:1px solid var(--c);
+
     box-shadow:
-        0 0 30px #00eaff55,
-        inset 0 0 30px #00eaff22;
-    animation:pulse 2.8s ease-in-out infinite;
+
+        0 0 15px var(--cyan),
+        0 0 35px var(--cyan),
+        0 0 75px rgba(0,234,255,.65),
+        inset 0 0 30px white;
+
+    animation:
+        reactorPulse 2.4s ease-in-out infinite;
 }
 
-.core:before{
+.reactor:before{
+
     content:"";
+
     position:absolute;
-    width:108px;
-    height:108px;
+
+    width:120px;
+    height:120px;
+
     border-radius:50%;
-    border:1px solid #00eaff44;
-    animation:rev 4s linear infinite;
+
+    border:
+        1px solid rgba(0,234,255,.7);
+
+    box-shadow:
+        0 0 20px rgba(0,234,255,.25);
+
+    animation:
+        reverseSpin 7s linear infinite;
 }
 
-.ct{
-    text-align:center;
-    z-index:2;
-}
+.reactor:after{
 
-.ct strong{
-    display:block;
-    font-size:17px;
-    letter-spacing:3px;
-    color:var(--c);
-    text-shadow:0 0 12px var(--c);
-}
+    content:"";
 
-.ct span{
-    font-size:7px;
-    letter-spacing:2px;
-    color:#8bd8e1;
-}
-
-.state{
     position:absolute;
-    bottom:80px;
-    text-align:center;
-    font-size:8px;
-    letter-spacing:3px;
-    color:var(--muted);
+
+    width:145px;
+    height:145px;
+
+    border-radius:50%;
+
+    border:
+        1px dashed rgba(0,234,255,.35);
+
+    animation:
+        spin 11s linear infinite;
 }
 
-.state b{
-    color:var(--c);
+.coreText{
+
+    position:absolute;
+
+    text-align:center;
+
+    z-index:5;
+}
+
+.coreText strong{
+
+    display:block;
+
+    color:white;
+
+    font-size:15px;
+
+    letter-spacing:4px;
+
+    text-shadow:
+        0 0 10px var(--cyan),
+        0 0 25px var(--cyan);
+}
+
+.coreText span{
+
+    display:block;
+
+    margin-top:5px;
+
+    color:#6ebdc5;
+
+    font-size:6px;
+
+    letter-spacing:2px;
+}
+
+/* =========================
+   CORE STATUS
+========================= */
+
+.coreState{
+
+    position:absolute;
+
+    bottom:75px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    text-align:center;
+
+    color:#527f87;
+
+    font-size:8px;
+
+    letter-spacing:3px;
+
+    white-space:nowrap;
+}
+
+.coreState b{
+    color:var(--cyan);
     font-weight:400;
 }
 
+/* =========================
+   VOICE
+========================= */
+
 .voice{
+
     position:absolute;
+
     bottom:22px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
     display:flex;
-    gap:9px;
+
     align-items:center;
+
+    gap:10px;
 }
 
 .mic{
+
     width:43px;
     height:43px;
+
     border-radius:50%;
-    border:1px solid var(--c);
-    background:#00eaff08;
-    color:var(--c);
+
+    border:1px solid var(--cyan);
+
+    background:rgba(0,234,255,.04);
+
+    color:var(--cyan);
+
     cursor:pointer;
-    box-shadow:0 0 15px #00eaff22;
-    font-size:16px;
+
+    box-shadow:
+        0 0 15px rgba(0,234,255,.25);
+
+    transition:.2s;
+}
+
+.mic:hover{
+    transform:scale(1.08);
 }
 
 .mic.active{
-    background:#00eaff18;
-    box-shadow:0 0 30px #00eaff66;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,122,0,.3),
+            rgba(0,234,255,.1)
+        );
+
+    border-color:var(--orange);
+
+    color:var(--orange);
+
+    box-shadow:
+        0 0 18px var(--orange),
+        0 0 45px rgba(255,122,0,.35);
 }
 
-.vstatus{
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:10px 15px;
+.voiceStatus{
+
+    padding:10px 16px;
+
+    border:
+        1px solid rgba(0,234,255,.2);
+
+    border-radius:20px;
+
+    background:rgba(0,7,10,.8);
+
+    color:#5c929b;
+
     font-size:8px;
+
     letter-spacing:2px;
-    color:#68a0a8;
-    background:#010a0ed9;
 }
+
+/* =========================
+   CHAT
+========================= */
 
 .chat{
-    height:190px;
+
+    height:245px;
+
     display:flex;
     flex-direction:column;
 }
 
 .messages{
+
     flex:1;
+
     overflow:auto;
+
     font-size:8px;
+
     line-height:1.65;
-    color:#79aab2;
+
+    color:#6c9ca5;
 }
 
 .messages div{
-    margin:5px 0;
+    margin:7px 0;
 }
 
 .messages b{
-    color:var(--c);
+    color:var(--cyan);
     font-weight:400;
 }
 
 .input{
+
     display:flex;
+
     gap:6px;
-    margin-top:7px;
+
+    margin-top:8px;
 }
 
 .input input{
-    flex:1;
-    min-width:0;
-    background:#010a0e;
-    border:1px solid var(--line);
-    color:var(--text);
-    padding:8px;
-    font:8px Consolas;
-    outline:none;
-}
 
-.input input:focus{
-    border-color:var(--c);
+    flex:1;
+
+    min-width:0;
+
+    padding:9px;
+
+    border:
+        1px solid rgba(0,234,255,.15);
+
+    outline:none;
+
+    background:#01080c;
+
+    color:var(--text);
+
+    font:8px Consolas;
 }
 
 .input button{
-    background:#00eaff0b;
-    border:1px solid var(--c);
-    color:var(--c);
+
+    border:1px solid var(--cyan);
+
+    background:rgba(0,234,255,.04);
+
+    color:var(--cyan);
+
     font:8px Consolas;
+
     cursor:pointer;
-    padding:0 9px;
 }
 
-.log{
-    font-size:8px;
-    line-height:2;
-    color:#5f929b;
+/* =========================
+   ACTIVITY
+========================= */
+
+.activity{
+
+    flex:1;
+
     overflow:hidden;
+
+    font-size:7px;
+
+    line-height:2;
+
+    color:#4e7c84;
 }
 
-.log b{
-    color:var(--c);
+.activity b{
+    color:var(--cyan);
     font-weight:400;
 }
 
-.mode{
-    flex:1;
+/* =========================
+   ENERGY STATE
+========================= */
+
+body.awake{
+    --cyan:#00eaff;
 }
 
-.state-list div{
-    display:flex;
-    justify-content:space-between;
-    border-bottom:1px solid #0b2930;
-    padding:7px 0;
-    font-size:8px;
-    color:#628e96;
+body.awake .reactor{
+
+    background:
+
+        radial-gradient(
+            circle,
+            white 0%,
+            #ffe8c7 5%,
+            var(--orange2) 13%,
+            var(--orange) 24%,
+            #103844 43%,
+            #001219 63%,
+            transparent 74%
+        );
+
+    box-shadow:
+
+        0 0 20px var(--orange),
+        0 0 50px var(--orange),
+        0 0 100px rgba(255,122,0,.55),
+        0 0 130px rgba(0,234,255,.25);
 }
 
-.state-list .on{
-    color:var(--c);
+body.listening .reactor{
+
+    animation:
+        listeningPulse .45s ease-in-out infinite alternate;
+
+    box-shadow:
+
+        0 0 20px var(--cyan),
+        0 0 55px var(--cyan),
+        0 0 100px var(--orange);
 }
+
+body.thinking .reactor{
+
+    animation:
+        thinkingPulse .7s ease-in-out infinite alternate;
+}
+
+body.speaking .reactor{
+
+    animation:
+        speakingPulse .3s ease-in-out infinite alternate;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
 
 @keyframes spin{
     to{
@@ -447,38 +740,84 @@ body:before{
     }
 }
 
-@keyframes rev{
+@keyframes reverseSpin{
     to{
         transform:rotate(-360deg);
     }
 }
 
-@keyframes pulse{
+@keyframes reactorPulse{
+
     50%{
-        transform:scale(1.045);
-        box-shadow:
-            0 0 45px #00eaff66,
-            inset 0 0 35px #00eaff2b;
+        transform:scale(1.08);
     }
 }
 
+@keyframes listeningPulse{
+
+    from{
+        transform:scale(.9);
+    }
+
+    to{
+        transform:scale(1.2);
+    }
+}
+
+@keyframes thinkingPulse{
+
+    from{
+        transform:scale(.85) rotate(0deg);
+    }
+
+    to{
+        transform:scale(1.16) rotate(8deg);
+    }
+}
+
+@keyframes speakingPulse{
+
+    from{
+        transform:scale(.9);
+    }
+
+    to{
+        transform:scale(1.25);
+    }
+}
+
+@keyframes logoPulse{
+
+    50%{
+        box-shadow:
+            0 0 20px var(--cyan),
+            0 0 40px rgba(0,234,255,.5);
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
 @media(max-width:900px){
-    .layout{
+
+    .main{
         grid-template-columns:1fr;
     }
 
-    .col{
+    .side{
         display:none;
     }
 
     .center{
-        height:calc(100vh - 77px);
+        height:calc(100vh - 94px);
     }
 
     .stats{
         display:none;
     }
 }
+
 </style>
 </head>
 
@@ -487,123 +826,130 @@ body:before{
 <header class="top">
 
     <div class="brand">
-        <span class="mark"></span>
+
+        <div class="logo"></div>
 
         <div>
+
             <b>HIVAI</b>
+
             <small>
-                HIVE INTELLIGENCE VIRTUAL AI SYSTEM // V1.2
+                HIVE INTELLIGENCE VIRTUAL AI SYSTEM // V1.3
             </small>
+
         </div>
+
     </div>
 
     <div class="stats">
 
         <span>
-            STATUS
+            SYSTEM
             <b>
                 <i class="dot"></i>
-                <span id="status">OPTIMAL</span>
+                <span id="systemStatus">OPTIMAL</span>
             </b>
         </span>
 
         <span>
-            LOCAL TIME
-            <b id="clock">--:--:--</b>
+            CORE
+            <b id="coreStatus">SLEEP</b>
         </span>
 
-        <span>
-            GATEWAY
-            <b id="gateway">STANDBY</b>
+        <span id="clock">
+            --:--:--
         </span>
-
-        <span>SIR // USER</span>
 
     </div>
 
 </header>
 
 
-<main class="layout">
+<main class="main">
+
 
 <!-- LEFT -->
 
-<aside class="col">
+<aside class="side">
 
-<section class="panel">
+    <section class="panel">
 
-    <div class="title">
-        SYSTEM // BRAIN GATEWAY
-    </div>
-
-    <div class="row">
-        <span>GATEWAY</span>
-        <b id="gwstate">STANDBY</b>
-    </div>
-
-    <div class="bar">
-        <i id="gwbar" style="width:12%"></i>
-    </div>
-
-    <div class="row">
-        <span>AI CORE</span>
-        <b id="provider">HIVAI CORE</b>
-    </div>
-
-    <div class="row">
-        <span>SESSION</span>
-        <b>LOCAL</b>
-    </div>
-
-</section>
-
-
-<section class="panel mode">
-
-    <div class="title">
-        SYSTEM // STATE ENGINE
-    </div>
-
-    <div class="state-list">
-
-        <div id="idle">
-            IDLE
-            <span>●</span>
+        <div class="title">
+            SYSTEM // CORE TELEMETRY
         </div>
 
-        <div id="listen">
-            LISTENING
-            <span>○</span>
+        <div class="statrow">
+            <span>ENERGY</span>
+            <b id="energy">32%</b>
         </div>
 
-        <div id="think">
-            THINKING
-            <span>○</span>
+        <div class="bar">
+            <i id="energyBar" style="width:32%"></i>
         </div>
 
-        <div id="speak">
-            SPEAKING
-            <span>○</span>
+        <div class="statrow">
+            <span>NEURAL LOAD</span>
+            <b id="neural">18%</b>
         </div>
 
-    </div>
+        <div class="bar">
+            <i id="neuralBar" style="width:18%"></i>
+        </div>
 
-</section>
+        <div class="statrow">
+            <span>PROCESSING</span>
+            <b id="processing">IDLE</b>
+        </div>
+
+    </section>
 
 
-<section class="panel">
+    <section class="panel">
 
-    <div class="title">
-        SYSTEM // SECURITY
-    </div>
+        <div class="title">
+            SYSTEM // STATE ENGINE
+        </div>
 
-    <div class="log">
-        <b>KEY STORAGE</b> SERVER ONLY<br>
-        CLIENT KEY: NONE<br>
-        GATEWAY: PROTECTED
-    </div>
+        <div class="statrow">
+            <span>SLEEP</span>
+            <b>●</b>
+        </div>
 
-</section>
+        <div class="statrow">
+            <span>LISTENING</span>
+            <b id="listenState">○</b>
+        </div>
+
+        <div class="statrow">
+            <span>THINKING</span>
+            <b id="thinkState">○</b>
+        </div>
+
+        <div class="statrow">
+            <span>SPEAKING</span>
+            <b id="speakState">○</b>
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <div class="title">
+            SECURITY // GATEWAY
+        </div>
+
+        <div class="activity">
+
+            <b>CLIENT KEY</b> NONE<br>
+            <b>SERVER KEY</b> PROTECTED<br>
+            <b>SESSION</b> LOCAL<br>
+            <b>GATEWAY</b> ACTIVE<br>
+            <b>CORE</b> ENCRYPTED
+
+        </div>
+
+    </section>
 
 </aside>
 
@@ -612,143 +958,130 @@ body:before{
 
 <section class="center">
 
-<div class="corebox">
+    <canvas id="coreCanvas"></canvas>
 
-    <div class="ring r1"></div>
-    <div class="ring r2"></div>
-    <div class="ring r3"></div>
 
-    <div class="orbit"></div>
-    <div class="orbit orbit2"></div>
+    <div class="coreUI">
 
-    <div class="core">
+        <div class="reactor"></div>
 
-        <div class="ct">
+        <div class="coreText">
 
-            <strong>CORE</strong>
+            <strong>HIVAI</strong>
 
-            <span id="coresub">
-                HIVAI // IDLE
+            <span id="coreText">
+                CORE // SLEEP
             </span>
 
         </div>
 
     </div>
 
-</div>
 
+    <div class="coreState">
 
-<div class="state">
-    SYSTEM //
-    <b id="state">AWAITING COMMAND</b>
-</div>
+        SYSTEM //
 
+        <b id="stateText">
+            AWAITING COMMAND
+        </b>
 
-<div class="voice">
-
-    <button class="mic" id="mic">
-        ◉
-    </button>
-
-    <div class="vstatus" id="vs">
-        MIC // READY
     </div>
 
-</div>
+
+    <div class="voice">
+
+        <button
+            class="mic"
+            id="mic"
+            title="Voice input"
+        >
+            ◉
+        </button>
+
+        <div
+            class="voiceStatus"
+            id="voiceStatus"
+        >
+            VOICE // READY
+        </div>
+
+    </div>
 
 </section>
 
 
 <!-- RIGHT -->
 
-<aside class="col">
+<aside class="side">
 
-<section class="panel chat">
+    <section class="panel chat">
 
-    <div class="title">
-        HIVAI // BRAIN CONSOLE
-    </div>
-
-    <div class="messages" id="messages">
-
-        <div>
-            <b>CORE:</b>
-            v1.2 interface initialized.
+        <div class="title">
+            HIVAI // BRAIN CONSOLE
         </div>
 
-        <div>
-            <b>CORE:</b>
-            Secure brain gateway ready.
-        </div>
-
-    </div>
-
-
-    <div class="input">
-
-        <input
-            id="input"
-            placeholder="Ask HiVAI..."
-            autocomplete="off"
+        <div
+            class="messages"
+            id="messages"
         >
 
-        <button id="send">
-            SEND
-        </button>
+            <div>
+                <b>CORE:</b>
+                Hive Intelligence initialized.
+            </div>
 
-    </div>
+            <div>
+                <b>CORE:</b>
+                Neural interface ready.
+            </div>
 
-</section>
-
-
-<section class="panel mode">
-
-    <div class="title">
-        SYSTEM // ACTIVITY LOG
-    </div>
-
-    <div class="log" id="log">
-
-        <div>
-            [BOOT]
-            <b>SYSTEM</b>
-            Gateway client ready
         </div>
 
-        <div>
-            [BOOT]
-            <b>SECURITY</b>
-            Client holds no AI key
+
+        <div class="input">
+
+            <input
+                id="input"
+                placeholder="Talk to HiVAI..."
+                autocomplete="off"
+            >
+
+            <button id="send">
+                SEND
+            </button>
+
         </div>
 
-        <div>
-            [BOOT]
-            <b>BRAIN</b>
-            Awaiting backend response
+    </section>
+
+
+    <section class="panel">
+
+        <div class="title">
+            SYSTEM // ACTIVITY
         </div>
 
-    </div>
+        <div
+            class="activity"
+            id="activity"
+        >
 
-</section>
+            <b>[SYSTEM]</b>
+            CORE ONLINE<br>
 
+            <b>[SYSTEM]</b>
+            PARTICLE MATRIX ONLINE<br>
 
-<section class="panel">
+            <b>[SYSTEM]</b>
+            NEURAL LINK READY<br>
 
-    <div class="title">
-        SYSTEM // MODULES
-    </div>
+            <b>[SYSTEM]</b>
+            AWAITING USER INPUT...
 
-    <div class="log">
+        </div>
 
-        <b>CORE</b> ONLINE<br>
-        <b>VOICE</b> ONLINE<br>
-        <b>BRAIN</b> READY<br>
-        <b>MEMORY</b> NEXT<br>
-        <b>TOOLS</b> NEXT
-
-    </div>
-
-</section>
+    </section>
 
 </aside>
 
@@ -757,211 +1090,724 @@ body:before{
 
 <script>
 
-/* =========================================================
-   HiVAI API CONFIGURATION
-   ========================================================= */
+/* =====================================================
+   HIVAI CORE ENGINE
+===================================================== */
 
-const API_BASE = "/api";
+const canvas =
+    document.getElementById("coreCanvas");
+
+const ctx =
+    canvas.getContext("2d");
+
+let W = 0;
+let H = 0;
+
+let particles = [];
+
+let state = "sleep";
+
+let mouseX = 0;
+let mouseY = 0;
+
+let audioLevel = 0;
 
 
-/* =========================================================
-   DOM REFERENCES
-   ========================================================= */
+/* =====================================================
+   RESIZE
+===================================================== */
 
-const $ = id => document.getElementById(id);
+function resize(){
 
-const mic = $("mic");
-const vs = $("vs");
-const state = $("state");
-const log = $("log");
-const messages = $("messages");
+    const rect =
+        canvas.parentElement.getBoundingClientRect();
 
+    W = canvas.width =
+        rect.width * devicePixelRatio;
 
-/* =========================================================
-   CLOCK
-   ========================================================= */
+    H = canvas.height =
+        rect.height * devicePixelRatio;
 
-function clock(){
+    canvas.style.width =
+        rect.width + "px";
 
-    $("clock").textContent =
-        new Date().toLocaleTimeString(
-            [],
-            {
-                hour12:false
-            }
-        );
+    canvas.style.height =
+        rect.height + "px";
 
+    ctx.setTransform(
+        devicePixelRatio,
+        0,
+        0,
+        devicePixelRatio,
+        0,
+        0
+    );
+
+    W = rect.width;
+    H = rect.height;
+
+    createParticles();
 }
 
-clock();
+window.addEventListener(
+    "resize",
+    resize
+);
 
-setInterval(clock,1000);
 
+/* =====================================================
+   PARTICLES
+===================================================== */
 
-/* =========================================================
-   LOGGING
-   ========================================================= */
+function createParticles(){
 
-function addLog(type,message){
+    particles = [];
 
-    const d = document.createElement("div");
+    const amount =
+        Math.min(
+            650,
+            Math.floor(
+                (W * H) / 1800
+            )
+        );
 
-    d.textContent =
-        "[" +
-        new Date().toLocaleTimeString(
-            [],
-            {
-                hour12:false
-            }
-        ) +
-        "] " +
-        type +
-        " " +
-        message;
+    for(
+        let i = 0;
+        i < amount;
+        i++
+    ){
 
-    log.prepend(d);
+        const a =
+            Math.random() *
+            Math.PI * 2;
 
-    while(log.children.length > 8){
-        log.lastChild.remove();
+        const radius =
+            60 +
+            Math.pow(
+                Math.random(),
+                .65
+            ) * Math.min(W,H) * .42;
+
+        particles.push({
+
+            a,
+
+            radius,
+
+            speed:
+                (.0003 +
+                Math.random() * .0012)
+                *
+                (Math.random()>.5?1:-1),
+
+            size:
+                .5 +
+                Math.random()*2,
+
+            phase:
+                Math.random()*Math.PI*2,
+
+            life:
+                Math.random()
+
+        });
+
     }
 
 }
 
 
-/* =========================================================
-   SYSTEM STATE
-   ========================================================= */
+/* =====================================================
+   CORE DRAW
+===================================================== */
 
-function setState(s){
+function draw(){
 
-    const states = {
+    ctx.clearRect(
+        0,
+        0,
+        W,
+        H
+    );
 
-        idle:[
+    const cx = W/2;
+    const cy = H/2;
+
+    const min =
+        Math.min(W,H);
+
+    const activity =
+        state === "listening"
+        ? 1.8
+        : state === "thinking"
+        ? 1.4
+        : state === "speaking"
+        ? 1.6
+        : state === "awake"
+        ? 1
+        : .45;
+
+
+    /* -----------------------------------------------
+       AMBIENT GLOW
+    ----------------------------------------------- */
+
+    const glow =
+        ctx.createRadialGradient(
+            cx,
+            cy,
+            10,
+            cx,
+            cy,
+            min*.48
+        );
+
+    glow.addColorStop(
+        0,
+        state==="awake"
+        ? "rgba(255,122,0,.16)"
+        : "rgba(0,234,255,.14)"
+    );
+
+    glow.addColorStop(
+        .35,
+        "rgba(0,234,255,.045)"
+    );
+
+    glow.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
+    ctx.fillStyle = glow;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* -----------------------------------------------
+       PARTICLES
+    ----------------------------------------------- */
+
+    for(
+        let i=0;
+        i<particles.length;
+        i++
+    ){
+
+        const p =
+            particles[i];
+
+        p.a +=
+            p.speed *
+            activity *
+            4;
+
+        const wave =
+            Math.sin(
+                p.phase +
+                performance.now()*.001
+            ) * 4;
+
+        const radius =
+            p.radius +
+            wave +
+            audioLevel * 90;
+
+        const x =
+            cx +
+            Math.cos(p.a) *
+            radius;
+
+        const y =
+            cy +
+            Math.sin(p.a) *
+            radius *
+            .64;
+
+        const alpha =
+            Math.max(
+                .08,
+                .9 -
+                radius/min*.8
+            );
+
+        const orange =
+            state === "awake" ||
+            state === "listening" ||
+            state === "thinking";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            p.size *
+            (1+audioLevel*2),
+            0,
+            Math.PI*2
+        );
+
+        ctx.fillStyle =
+            orange &&
+            Math.random()>.58
+            ? `rgba(255,145,25,${alpha})`
+            : `rgba(0,234,255,${alpha})`;
+
+        ctx.fill();
+
+
+        /* energy filament */
+
+        if(
+            i % 10 === 0 &&
+            radius < min*.34
+        ){
+
+            const a2 =
+                p.a +
+                (.3 +
+                Math.random()*.4);
+
+            const r2 =
+                radius +
+                35 +
+                Math.random()*70;
+
+            const x2 =
+                cx +
+                Math.cos(a2)*r2;
+
+            const y2 =
+                cy +
+                Math.sin(a2)*r2*.64;
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                x,
+                y
+            );
+
+            ctx.lineTo(
+                x2,
+                y2
+            );
+
+            ctx.strokeStyle =
+                orange
+                ? "rgba(255,122,0,.16)"
+                : "rgba(0,234,255,.13)";
+
+            ctx.lineWidth = .5;
+
+            ctx.stroke();
+        }
+
+    }
+
+
+    /* -----------------------------------------------
+       ORBITAL ENERGY RINGS
+    ----------------------------------------------- */
+
+    for(
+        let r=70;
+        r<min*.38;
+        r+=48
+    ){
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            cx,
+            cy,
+            r,
+            r*.62,
+            performance.now()*.0001,
+            0,
+            Math.PI*2
+        );
+
+        ctx.strokeStyle =
+            state==="awake"
+            ? "rgba(255,122,0,.16)"
+            : "rgba(0,234,255,.13)";
+
+        ctx.lineWidth = 1;
+
+        ctx.stroke();
+
+    }
+
+
+    /* -----------------------------------------------
+       ENERGY RAYS
+    ----------------------------------------------- */
+
+    const rays =
+        state==="sleep"
+        ? 4
+        : state==="listening"
+        ? 26
+        : 17;
+
+    for(
+        let i=0;
+        i<rays;
+        i++
+    ){
+
+        const a =
+            performance.now()*.0003 +
+            i*Math.PI*2/rays;
+
+        const inner =
+            65;
+
+        const outer =
+            min*.25 +
+            Math.random()*min*.25 +
+            audioLevel*150;
+
+        const x1 =
+            cx +
+            Math.cos(a)*inner;
+
+        const y1 =
+            cy +
+            Math.sin(a)*inner*.64;
+
+        const x2 =
+            cx +
+            Math.cos(a)*outer;
+
+        const y2 =
+            cy +
+            Math.sin(a)*outer*.64;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x1,
+            y1
+        );
+
+        ctx.lineTo(
+            x2,
+            y2
+        );
+
+        ctx.strokeStyle =
+            i%4===0 &&
+            state!=="sleep"
+            ? "rgba(255,122,0,.32)"
+            : "rgba(0,234,255,.18)";
+
+        ctx.lineWidth =
+            state==="listening"
+            ? 1.5
+            : .7;
+
+        ctx.stroke();
+
+    }
+
+
+    /* -----------------------------------------------
+       MOUSE PARALLAX
+    ----------------------------------------------- */
+
+    ctx.save();
+
+    ctx.translate(
+        mouseX*10,
+        mouseY*10
+    );
+
+    ctx.restore();
+
+
+    requestAnimationFrame(draw);
+}
+
+
+/* =====================================================
+   MOUSE
+===================================================== */
+
+document
+    .querySelector(".center")
+    .addEventListener(
+        "mousemove",
+        e=>{
+
+            const rect =
+                e.currentTarget
+                .getBoundingClientRect();
+
+            mouseX =
+                (e.clientX -
+                rect.left -
+                rect.width/2)
+                /rect.width;
+
+            mouseY =
+                (e.clientY -
+                rect.top -
+                rect.height/2)
+                /rect.height;
+
+        }
+    );
+
+
+/* =====================================================
+   STATE ENGINE
+===================================================== */
+
+function setState(newState){
+
+    state = newState;
+
+    document.body.className =
+        newState;
+
+    const stateText =
+        document.getElementById(
+            "stateText"
+        );
+
+    const coreText =
+        document.getElementById(
+            "coreText"
+        );
+
+    const coreStatus =
+        document.getElementById(
+            "coreStatus"
+        );
+
+    const processing =
+        document.getElementById(
+            "processing"
+        );
+
+    const names = {
+
+        sleep:[
             "AWAITING COMMAND",
-            "HIVAI // IDLE"
+            "CORE // SLEEP",
+            "SLEEP"
         ],
 
-        listen:[
-            "LISTENING",
-            "HIVAI // LISTENING"
+        awake:[
+            "SYSTEM AWAKE",
+            "CORE // ACTIVE",
+            "AWAKE"
         ],
 
-        think:[
-            "THINKING",
-            "HIVAI // THINKING"
+        listening:[
+            "LISTENING TO USER",
+            "CORE // LISTENING",
+            "LISTEN"
         ],
 
-        speak:[
-            "SPEAKING",
-            "HIVAI // SPEAKING"
+        thinking:[
+            "PROCESSING",
+            "CORE // THINKING",
+            "THINK"
+        ],
+
+        speaking:[
+            "TRANSMITTING RESPONSE",
+            "CORE // SPEAKING",
+            "SPEAK"
         ]
 
     };
 
-    const current = states[s];
+    const data =
+        names[newState];
 
-    if(!current) return;
+    stateText.textContent =
+        data[0];
 
-    state.textContent = current[0];
+    coreText.textContent =
+        data[1];
 
-    $("coresub").textContent = current[1];
+    coreStatus.textContent =
+        data[2];
 
-    [
-        "idle",
-        "listen",
-        "think",
-        "speak"
-    ].forEach(x => {
+    processing.textContent =
+        data[2];
 
-        $(x).className =
-            x === s
-                ? "on"
-                : "";
+    document.getElementById(
+        "listenState"
+    ).textContent =
+        newState==="listening"
+        ? "●"
+        : "○";
 
-    });
+    document.getElementById(
+        "thinkState"
+    ).textContent =
+        newState==="thinking"
+        ? "●"
+        : "○";
+
+    document.getElementById(
+        "speakState"
+    ).textContent =
+        newState==="speaking"
+        ? "●"
+        : "○";
 
 }
 
 
-/* =========================================================
-   SAFE HTML
-   ========================================================= */
+/* =====================================================
+   TELEMETRY
+===================================================== */
 
-function safe(value){
+setInterval(()=>{
 
-    return String(value ?? "")
-        .replace(
-            /[&<>]/g,
-            char => ({
-                "&":"&amp;",
-                "<":"&lt;",
-                ">":"&gt;"
-            }[char])
+    const base =
+        state==="sleep"
+        ? 20
+        : state==="awake"
+        ? 48
+        : state==="listening"
+        ? 82
+        : state==="thinking"
+        ? 94
+        : 70;
+
+    const energy =
+        Math.min(
+            100,
+            Math.floor(
+                base +
+                Math.random()*15
+            )
         );
 
-}
+    const neural =
+        Math.min(
+            100,
+            Math.floor(
+                (state==="sleep"?12:35) +
+                Math.random()*45
+            )
+        );
+
+    document.getElementById(
+        "energy"
+    ).textContent =
+        energy+"%";
+
+    document.getElementById(
+        "energyBar"
+    ).style.width =
+        energy+"%";
+
+    document.getElementById(
+        "neural"
+    ).textContent =
+        neural+"%";
+
+    document.getElementById(
+        "neuralBar"
+    ).style.width =
+        neural+"%";
+
+},1000);
 
 
-/* =========================================================
-   CHAT REQUEST
-   ========================================================= */
+/* =====================================================
+   CLOCK
+===================================================== */
 
-async function ask(text){
+setInterval(()=>{
 
-    if(!text) return;
+    document.getElementById(
+        "clock"
+    ).textContent =
+        new Date()
+        .toLocaleTimeString();
+
+},1000);
 
 
-    /* USER MESSAGE */
+/* =====================================================
+   CHAT
+===================================================== */
 
-    messages.insertAdjacentHTML(
-        "beforeend",
-        "<div><b>YOU:</b> " +
-        safe(text) +
-        "</div>"
-    );
+const input =
+    document.getElementById("input");
+
+const send =
+    document.getElementById("send");
+
+const messages =
+    document.getElementById("messages");
+
+
+function addMessage(
+    who,
+    text
+){
+
+    const div =
+        document.createElement("div");
+
+    div.innerHTML =
+        `<b>${who}:</b> ${escapeHTML(text)}`;
+
+    messages.appendChild(div);
 
     messages.scrollTop =
         messages.scrollHeight;
+}
 
 
-    /* THINKING */
+function escapeHTML(text){
 
-    setState("think");
+    const div =
+        document.createElement("div");
 
-    $("gateway").textContent =
-        "PROCESSING";
+    div.textContent =
+        text;
 
-    $("gwstate").textContent =
-        "PROCESSING";
+    return div.innerHTML;
+}
 
-    $("gwbar").style.width =
-        "75%";
 
-    addLog(
-        "BRAIN",
-        "Sending secure request"
+async function sendMessage(){
+
+    const text =
+        input.value.trim();
+
+    if(!text) return;
+
+    input.value="";
+
+    addMessage(
+        "USER",
+        text
     );
 
+    setState("thinking");
 
     try{
 
-        /*
-         * IMPORTANT:
-         *
-         * API_BASE = "/api"
-         *
-         * Therefore this MUST be:
-         *
-         * /api/chat
-         *
-         * NOT:
-         *
-         * /api/api/chat
-         */
-
         const response =
             await fetch(
-                API_BASE + "/chat",
+                "/api/chat",
                 {
                     method:"POST",
 
@@ -972,201 +1818,82 @@ async function ask(text){
 
                     body:JSON.stringify({
                         message:text,
-                        session_id:"local"
+                        session_id:"web"
                     })
                 }
             );
 
-
-        if(!response.ok){
-
-            throw new Error(
-                "HTTP " +
-                response.status
-            );
-
-        }
-
-
         const data =
             await response.json();
 
+        if(
+            !response.ok ||
+            !data.ok
+        ){
 
-        /* =================================================
-           SUCCESS
-           ================================================= */
+            throw new Error(
+                data.error ||
+                "Gateway unavailable"
+            );
+        }
 
-        /*
-         * We intentionally don't display
-         * the underlying AI provider.
-         */
-
-        $("provider").textContent =
-            "HIVAI CORE";
-
-
-        const reply =
-            data.reply ||
-            "I received your request, but no response was returned.";
-
-
-        messages.insertAdjacentHTML(
-            "beforeend",
-            "<div><b>HIVAI:</b> " +
-            safe(reply) +
-            "</div>"
+        addMessage(
+            "HIVAI",
+            data.reply
         );
 
-        messages.scrollTop =
-            messages.scrollHeight;
-
-
-        setState("speak");
-
-        $("gateway").textContent =
-            "ONLINE";
-
-        $("gwstate").textContent =
-            "ONLINE";
-
-        $("gwbar").style.width =
-            "100%";
-
-        addLog(
-            "CORE",
-            "Response received"
-        );
-
-
-        speak(reply);
-
+        setState("speaking");
 
         setTimeout(
-            () => setState("idle"),
-            1100
+            ()=>setState("awake"),
+            1800
         );
-
 
     }catch(error){
 
-        console.error(
-            "HiVAI Gateway Error:",
-            error
+        addMessage(
+            "SYSTEM",
+            error.message
         );
 
-
-        messages.insertAdjacentHTML(
-            "beforeend",
-            "<div><b>HIVAI:</b> Gateway unavailable. Check the secure brain gateway.</div>"
-        );
-
-
-        setState("idle");
-
-        $("gateway").textContent =
-            "OFFLINE";
-
-        $("gwstate").textContent =
-            "OFFLINE";
-
-        $("gwbar").style.width =
-            "0%";
-
-
-        addLog(
-            "ERROR",
-            "Backend unavailable"
-        );
-
+        setState("awake");
     }
 
 }
 
 
-/* =========================================================
-   SEND BUTTON
-   ========================================================= */
+send.addEventListener(
+    "click",
+    sendMessage
+);
 
-$("send").onclick = () => {
+input.addEventListener(
+    "keydown",
+    e=>{
 
-    const text =
-        $("input").value.trim();
-
-    $("input").value = "";
-
-    ask(text);
-
-};
-
-
-/* =========================================================
-   ENTER KEY
-   ========================================================= */
-
-$("input").onkeydown = event => {
-
-    if(event.key === "Enter"){
-
-        $("send").click();
+        if(
+            e.key==="Enter"
+        ){
+            sendMessage();
+        }
 
     }
-
-};
-
-
-/* =========================================================
-   TEXT TO SPEECH
-   ========================================================= */
-
-function speak(text){
-
-    if(
-        "speechSynthesis"
-        in window
-    ){
-
-        speechSynthesis.cancel();
+);
 
 
-        const utterance =
-            new SpeechSynthesisUtterance(
-                text
-            );
+/* =====================================================
+   VOICE
+===================================================== */
 
+const mic =
+    document.getElementById("mic");
 
-        utterance.rate =
-            0.95;
+const voiceStatus =
+    document.getElementById(
+        "voiceStatus"
+    );
 
-        utterance.pitch =
-            0.9;
-
-
-        utterance.onstart = () => {
-
-            setState("speak");
-
-        };
-
-
-        utterance.onend = () => {
-
-            setState("idle");
-
-        };
-
-
-        speechSynthesis.speak(
-            utterance
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   VOICE INPUT
-   ========================================================= */
+let recognition = null;
 
 const SpeechRecognition =
     window.SpeechRecognition ||
@@ -1175,213 +1902,127 @@ const SpeechRecognition =
 
 if(SpeechRecognition){
 
-    const recognition =
+    recognition =
         new SpeechRecognition();
 
+    recognition.continuous = false;
 
-    recognition.lang =
-        "en-IN";
+    recognition.interimResults = true;
 
-    recognition.interimResults =
-        false;
-
-    recognition.continuous =
-        false;
+    recognition.lang = "en-IN";
 
 
-    recognition.onstart = () => {
+    recognition.onstart = ()=>{
+
+        setState("listening");
 
         mic.classList.add(
             "active"
         );
 
-        vs.textContent =
-            "LISTENING // SPEAK NOW";
-
-        setState("listen");
-
-        addLog(
-            "VOICE",
-            "Input channel active"
-        );
+        voiceStatus.textContent =
+            "VOICE // LISTENING";
 
     };
 
 
-    recognition.onresult = event => {
+    recognition.onresult = e=>{
 
-        const text =
-            event
-                .results[0][0]
-                .transcript;
+        let transcript="";
 
+        for(
+            let i=e.resultIndex;
+            i<e.results.length;
+            i++
+        ){
 
-        vs.textContent =
-            "INPUT CAPTURED";
+            transcript +=
+                e.results[i][0].transcript;
 
+        }
 
-        addLog(
-            "USER",
-            text
-        );
+        input.value =
+            transcript;
 
-
-        ask(text);
+        audioLevel =
+            .45 +
+            Math.random()*.35;
 
     };
 
 
-    recognition.onerror = event => {
-
-        console.error(
-            "Voice error:",
-            event.error
-        );
-
+    recognition.onend = ()=>{
 
         mic.classList.remove(
             "active"
         );
 
-        vs.textContent =
-            "MIC // ERROR";
+        voiceStatus.textContent =
+            "VOICE // READY";
 
-        setState("idle");
+        audioLevel=0;
 
-    };
+        if(input.value.trim()){
 
+            sendMessage();
 
-    recognition.onend = () => {
+        }else{
 
-        mic.classList.remove(
-            "active"
-        );
-
-    };
-
-
-    mic.onclick = () => {
-
-        try{
-
-            recognition.start();
-
-        }catch(error){
-
-            try{
-                recognition.stop();
-            }catch(e){}
+            setState("awake");
 
         }
 
     };
+
+
+    recognition.onerror = ()=>{
+
+        mic.classList.remove(
+            "active"
+        );
+
+        voiceStatus.textContent =
+            "VOICE // ERROR";
+
+        audioLevel=0;
+
+        setState("awake");
+
+    };
+
+
+    mic.addEventListener(
+        "click",
+        ()=>{
+
+            try{
+
+                recognition.start();
+
+            }catch{}
+
+        }
+    );
 
 }else{
 
-    vs.textContent =
-        "MIC // UNSUPPORTED";
+    voiceStatus.textContent =
+        "VOICE // UNSUPPORTED";
 
-
-    mic.onclick = () => {
-
-        alert(
-            "Use Chrome or Edge for browser speech recognition."
-        );
-
-    };
+    mic.disabled=true;
 
 }
 
 
-/* =========================================================
-   GATEWAY HEALTH CHECK
-   ========================================================= */
+/* =====================================================
+   START
+===================================================== */
 
-async function checkGateway(){
+resize();
 
-    try{
+setState("sleep");
 
-        const response =
-            await fetch(
-                API_BASE + "/health",
-                {
-                    method:"GET",
-                    cache:"no-store"
-                }
-            );
-
-
-        if(!response.ok){
-
-            throw new Error(
-                "HTTP " +
-                response.status
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        /* Gateway online */
-
-        $("gateway").textContent =
-            "ONLINE";
-
-        $("gwstate").textContent =
-            "ONLINE";
-
-        $("gwbar").style.width =
-            "100%";
-
-
-        $("provider").textContent =
-            "HIVAI CORE";
-
-
-        addLog(
-            "GATEWAY",
-            "Health check passed"
-        );
-
-
-    }catch(error){
-
-        console.error(
-            "Health check failed:",
-            error
-        );
-
-
-        $("gateway").textContent =
-            "OFFLINE";
-
-        $("gwstate").textContent =
-            "OFFLINE";
-
-        $("gwbar").style.width =
-            "0%";
-
-
-        addLog(
-            "GATEWAY",
-            "Backend not detected"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   STARTUP
-   ========================================================= */
-
-setState("idle");
-
-checkGateway();
+draw();
 
 </script>
 
