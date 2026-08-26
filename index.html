@@ -1046,6 +1046,7 @@ Sleep mode initialized
 <script type="module">
 
 import * as THREE from "three";
+import { initHIVAIVoice, speakHIVAI, stopHIVAI, getVoiceEnergy } from "./js/hivai-voice.js";
 
 
 const $ =
@@ -1321,6 +1322,49 @@ opacity:.95
 );
 
 core.add(nucleus);
+
+/* =========================================================
+   JARVIS-STYLE ORANGE NUCLEUS
+========================================================= */
+const nucleusGlow = sprite("#ff8a00", 78);
+nucleusGlow.material.opacity = .88;
+core.add(nucleusGlow);
+
+const nucleusShell = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(17, 2),
+    new THREE.MeshBasicMaterial({
+        color: ORANGE,
+        wireframe: true,
+        transparent: true,
+        opacity: .9,
+        blending: THREE.AdditiveBlending
+    })
+);
+core.add(nucleusShell);
+
+const nucleusRingA = new THREE.Mesh(
+    new THREE.TorusGeometry(25, 1.15, 8, 128),
+    new THREE.MeshBasicMaterial({
+        color: ORANGE,
+        transparent: true,
+        opacity: .8,
+        blending: THREE.AdditiveBlending
+    })
+);
+nucleusRingA.rotation.x = .9;
+core.add(nucleusRingA);
+
+const nucleusRingB = new THREE.Mesh(
+    new THREE.TorusGeometry(32, .7, 8, 128),
+    new THREE.MeshBasicMaterial({
+        color: ORANGE,
+        transparent: true,
+        opacity: .55,
+        blending: THREE.AdditiveBlending
+    })
+);
+nucleusRingB.rotation.y = .65;
+core.add(nucleusRingB);
 
 
 /* =========================================================
@@ -1634,1658 +1678,498 @@ Math.random()*.65
 
 
 /* =========================================================
-   STATE
+   STATE + HIVAI MEMORY
 ========================================================= */
 
-let state =
-"idle";
+let state = "idle";
+let audioLevel = 0;
+let awake = false;
+let voiceReady = false;
+let speaking = false;
 
-let audioLevel =
-0;
+const MEMORY_KEY = "hivai_conversation_v2";
+const SESSION_KEY = "hivai_session_v2";
 
-let awake =
-false;
+let chatHistory = [];
 
+try {
+    chatHistory = JSON.parse(localStorage.getItem(MEMORY_KEY) || "[]");
+    if (!Array.isArray(chatHistory)) chatHistory = [];
+} catch {
+    chatHistory = [];
+}
+
+const sessionId = localStorage.getItem(SESSION_KEY) ||
+    (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+localStorage.setItem(SESSION_KEY, sessionId);
+
+function persistMemory(){
+    chatHistory = chatHistory.slice(-24);
+    localStorage.setItem(MEMORY_KEY, JSON.stringify(chatHistory));
+}
 
 function setState(next){
+    state = next;
+    awake = next !== "idle";
 
-state =
-next;
+    const data = {
+        idle:["SLEEP","SLEEPING // AWAITING COMMAND",CYAN],
+        wake:["AWAKE","CORE AWAKE // AWAITING COMMAND",ORANGE],
+        listen:["LISTENING","LISTENING // VOICE LINK ACTIVE",ORANGE],
+        think:["THINKING","THINKING // PROCESSING",ORANGE],
+        speak:["SPEAKING","SPEAKING // RESPONSE ACTIVE",CYAN]
+    }[next];
 
-awake =
-next !== "idle";
+    if(!data) return;
 
+    $("mode").textContent = data[0];
+    $("state").textContent = data[1];
+    $("status").textContent = data[0];
+    $("coreStatus").textContent = data[0];
+    $("brainStatus").textContent = next === "idle" ? "STANDBY" : next.toUpperCase();
 
-const data = {
+    ["idle","wakeState","listen","think","speak"].forEach(id => $(id).classList.remove("active"));
+    $(next === "wake" ? "wakeState" : next).classList.add("active");
 
-idle:[
-"SLEEP",
-"SLEEPING // AWAITING COMMAND",
-CYAN
-],
-
-wake:[
-"AWAKE",
-"CORE AWAKE // AWAITING COMMAND",
-ORANGE
-],
-
-listen:[
-"LISTENING",
-"LISTENING // VOICE LINK ACTIVE",
-ORANGE
-],
-
-think:[
-"THINKING",
-"THINKING // PROCESSING",
-ORANGE
-],
-
-speak:[
-"SPEAKING",
-"SPEAKING // RESPONSE ACTIVE",
-CYAN
-]
-
-}[next];
-
-
-if(!data)
-return;
-
-
-$("mode").textContent =
-data[0];
-
-$("state").textContent =
-data[1];
-
-$("status").textContent =
-data[0];
-
-$("coreStatus").textContent =
-data[0];
-
-
-$("brainStatus").textContent =
-next==="idle"
-?
-"STANDBY"
-:
-next.toUpperCase();
-
-
-[
-"idle",
-"wakeState",
-"listen",
-"think",
-"speak"
-]
-.forEach(
-id =>
-$(id)
-.classList.remove("active")
-);
-
-
-$(
-
-next==="wake"
-?
-"wakeState"
-:
-next
-
-)
-.classList.add("active");
-
-
-shell.material.color.copy(
-data[2]
-);
-
-glow.material.opacity =
-next==="idle"
-?
-.48
-:
-next==="listen"
-?
-.9
-:
-.72;
-
-glow.material.color.set(
-data[2]
-);
-
+    shell.material.color.copy(data[2]);
+    glow.material.opacity = next === "idle" ? .48 : next === "listen" ? .9 : .72;
+    glow.material.color.set(data[2]);
 }
-
-
-/* =========================================================
-   ENERGY
-========================================================= */
-
-function energy(){
-
-const target =
-
-state==="idle"
-?
-18
-:
-state==="wake"
-?
-72
-:
-state==="listen"
-?
-90
-:
-state==="think"
-?
-84
-:
-68;
-
-
-const value =
-Math.round(
-target+
-audioLevel*10
-);
-
-
-$("energy").textContent =
-value+"%";
-
-$("energyBar").style.width =
-value+"%";
-
-$("load").textContent =
-Math.round(
-Math.min(
-99,
-target*.9+
-audioLevel*30
-)
-)+"%";
-
-}
-
-
-/* =========================================================
-   UI LOGGING
-========================================================= */
 
 function safe(value){
-
-return String(value)
-.replace(
-/[&<>]/g,
-c =>
-({
-"&":"&amp;",
-"<":"&lt;",
-">":"&gt;"
-}[c])
-);
-
+    return String(value).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
 
-
-function addLog(
-type,
-message
-){
-
-const element =
-document.createElement(
-"div"
-);
-
-element.innerHTML =
-
-"["+
-new Date()
-.toLocaleTimeString(
-[],
-{hour12:false}
-)+"] <b>"+
-safe(type)+
-"</b> "+
-safe(message);
-
-
-$("log")
-.prepend(element);
-
-
-while(
-$("log").children.length>16
-){
-
-$("log")
-.lastChild
-.remove();
-
+function addLog(type,message){
+    const element = document.createElement("div");
+    element.innerHTML = "[" + new Date().toLocaleTimeString([], {hour12:false}) + "] <b>" + safe(type) + "</b> " + safe(message);
+    $("log").prepend(element);
+    while($("log").children.length > 18) $("log").lastChild.remove();
 }
 
+function addMessage(who,text,save=true){
+    const element = document.createElement("div");
+    element.innerHTML = "<b>" + safe(who) + ":</b> " + safe(text);
+    $("messages").appendChild(element);
+    $("messages").scrollTop = $("messages").scrollHeight;
+
+    if(save){
+        chatHistory.push({
+            role: who === "YOU" ? "user" : "assistant",
+            content: String(text)
+        });
+        persistMemory();
+    }
 }
 
-
-function addMessage(
-who,
-text
-){
-
-const element =
-document.createElement(
-"div"
-);
-
-element.innerHTML =
-"<b>"+
-safe(who)+
-":</b> "+
-safe(text);
-
-
-$("messages")
-.appendChild(
-element
-);
-
-$("messages")
-.scrollTop =
-$("messages")
-.scrollHeight;
-
+function renderMemory(){
+    $("messages").innerHTML = "";
+    if(!chatHistory.length){
+        addMessage("HIVAI","Core is sleeping. Press WAKE CORE or speak to activate me.",false);
+        return;
+    }
+    chatHistory.forEach(item => addMessage(item.role === "user" ? "YOU" : "HIVAI", item.content, false));
 }
 
+renderMemory();
 
 /* =========================================================
-   AUDIO ENGINE
+   LOCAL KOKORO VOICE
 ========================================================= */
 
-let audioCtx;
-
-
-function unlockAudio(){
-
-if(!audioCtx){
-
-audioCtx =
-new (
-window.AudioContext ||
-window.webkitAudioContext
-)();
-
+async function prepareVoice(){
+    if(voiceReady) return true;
+    try{
+        $("vs").textContent = "VOICE MODEL // LOADING";
+        addLog("VOICE","Loading local Kokoro neural voice");
+        await initHIVAIVoice(progress => {
+            if(progress.status === "READY") $("vs").textContent = "VOICE LINK // READY";
+        });
+        voiceReady = true;
+        $("vs").textContent = "VOICE LINK // READY";
+        addLog("VOICE","Kokoro local voice online");
+        return true;
+    }catch(error){
+        console.error(error);
+        $("vs").textContent = "VOICE // MODEL ERROR";
+        addLog("VOICE","Kokoro could not initialize; text chat remains available");
+        return false;
+    }
 }
 
-if(
-audioCtx.state ===
-"suspended"
-){
+async function speak(text){
+    if(!text) return;
 
-audioCtx.resume();
+    const ready = await prepareVoice();
+    if(!ready) return;
 
+    speaking = true;
+    setState("speak");
+    $("vs").textContent = "VOICE // SPEAKING";
+
+    try{
+        await speakHIVAI(text, {
+            voice: "am_michael",
+            onStart(){
+                speaking = true;
+                setState("speak");
+                $("vs").textContent = "VOICE // SPEAKING";
+            },
+            onEnd(){
+                speaking = false;
+                $("vs").textContent = "VOICE LINK // READY";
+                if(state === "speak") setState("wake");
+            },
+            onError(error){
+                console.error(error);
+                speaking = false;
+                $("vs").textContent = "VOICE // PLAYBACK ERROR";
+                if(state === "speak") setState("wake");
+            }
+        });
+    }catch(error){
+        speaking = false;
+        console.error(error);
+        $("vs").textContent = "VOICE // UNAVAILABLE";
+        if(state === "speak") setState("wake");
+    }
 }
 
+function stopVoice(){
+    stopHIVAI();
+    speaking = false;
+    if(state === "speak") setState("wake");
 }
-
-
-function tone(
-frequency,
-duration,
-type="sine",
-gain=.035,
-delay=0
-){
-
-if(!audioCtx)
-return;
-
-
-const now =
-audioCtx.currentTime+
-delay;
-
-
-const oscillator =
-audioCtx.createOscillator();
-
-const gainNode =
-audioCtx.createGain();
-
-
-oscillator.type =
-type;
-
-oscillator.frequency.setValueAtTime(
-frequency,
-now
-);
-
-
-gainNode.gain.setValueAtTime(
-0,
-now
-);
-
-gainNode.gain.linearRampToValueAtTime(
-gain,
-now+.012
-);
-
-gainNode.gain.exponentialRampToValueAtTime(
-.0001,
-now+duration
-);
-
-
-oscillator
-.connect(gainNode)
-.connect(audioCtx.destination);
-
-
-oscillator.start(now);
-
-oscillator.stop(
-now+
-duration+
-.03
-);
-
-}
-
-
-function bootSound(){
-
-unlockAudio();
-
-tone(
-220,
-.18,
-"sine",
-.035
-);
-
-tone(
-330,
-.18,
-"sine",
-.035,
-.11
-);
-
-tone(
-494,
-.3,
-"sine",
-.045,
-.22
-);
-
-}
-
-
-function wakeSound(){
-
-unlockAudio();
-
-tone(
-180,
-.16,
-"sine",
-.03
-);
-
-tone(
-320,
-.2,
-"triangle",
-.045,
-.09
-);
-
-tone(
-640,
-.4,
-"sine",
-.035,
-.2
-);
-
-}
-
-
-function listenSound(){
-
-unlockAudio();
-
-tone(
-520,
-.12,
-"triangle",
-.028
-);
-
-tone(
-760,
-.2,
-"sine",
-.022,
-.08
-);
-
-}
-
-
-function thinkSound(){
-
-unlockAudio();
-
-tone(
-260,
-.12,
-"square",
-.012
-);
-
-tone(
-390,
-.12,
-"square",
-.012,
-.12
-);
-
-}
-
-
-function sleepSound(){
-
-unlockAudio();
-
-tone(
-420,
-.2,
-"sine",
-.025
-);
-
-tone(
-220,
-.35,
-"sine",
-.018,
-.15
-);
-
-}
-
 
 /* =========================================================
    CORE COMMANDS
 ========================================================= */
 
 function wakeCore(){
-
-setState("wake");
-
-wakeSound();
-
-addLog(
-"CORE",
-"Wake sequence complete // energy nexus expanded"
-);
-
-$("vs").textContent =
-"VOICE LINK // READY";
-
+    unlockAudio();
+    setState("wake");
+    wakeSound();
+    addLog("CORE","Wake sequence complete // nucleus expanded");
+    $("vs").textContent = "VOICE LINK // READY";
 }
-
 
 function sleepCore(){
-
-setState("idle");
-
-sleepSound();
-
-addLog(
-"CORE",
-"Sleep sequence complete // low-energy cyan core"
-);
-
+    stopVoice();
+    setState("idle");
+    sleepSound();
+    addLog("CORE","Sleep sequence complete // cyan low-energy nucleus");
 }
-
 
 function command(text){
+    const value = text.toLowerCase().trim();
 
-const value =
-text.toLowerCase();
+    if(/^(wake|wake up|activate|activate core|hivai wake)(\s+hivai)?$/.test(value)){
+        wakeCore();
+        const reply = "Core awake, Sir. All primary systems are online.";
+        addMessage("HIVAI",reply);
+        speak(reply);
+        return true;
+    }
 
+    if(/^(sleep|sleep mode|go to sleep|standby|sleep core)$/.test(value)){
+        sleepCore();
+        addMessage("HIVAI","Entering sleep mode, Sir.");
+        return true;
+    }
 
-if(
-/^(wake|wake up|activate|activate core|hivai wake)/
-.test(value)
-){
+    if(value === "system status"){
+        wakeCore();
+        const reply = "Core is online. Neural gateway is " + $("gateway").textContent + ". Voice is local Kokoro. Memory is stored locally in this browser.";
+        addMessage("HIVAI",reply);
+        speak(reply);
+        return true;
+    }
 
-wakeCore();
+    if(value === "run a core diagnostic"){
+        wakeCore();
+        const reply = "Diagnostic complete. Three dimensional core, local memory, microphone channel and chat gateway are operational.";
+        addMessage("HIVAI",reply);
+        speak(reply);
+        return true;
+    }
 
-addMessage(
-"HIVAI",
-"Core awake, Sir. All primary systems online."
-);
-
-speak(
-"Core awake, Sir. All primary systems online."
-);
-
-return true;
-
+    return false;
 }
-
-
-if(
-/^(sleep|sleep mode|go to sleep|standby)/
-.test(value)
-){
-
-sleepCore();
-
-addMessage(
-"HIVAI",
-"Entering sleep mode."
-);
-
-return true;
-
-}
-
-
-return false;
-
-}
-
 
 /* =========================================================
-   AI CHAT
+   REAL AI CHAT
 ========================================================= */
+
+let requestBusy = false;
 
 async function ask(text){
+    if(!text || requestBusy) return;
 
-if(!text)
-return;
+    unlockAudio();
+    addMessage("YOU",text);
 
+    if(command(text)) return;
 
-addMessage(
-"YOU",
-text
-);
+    if(state === "idle") wakeCore();
+    setState("think");
+    thinkSound();
+    $("gateway").textContent = "PROCESSING";
+    $("brainStatus").textContent = "THINKING";
+    addLog("BRAIN","Secure request transmitted");
 
+    requestBusy = true;
+    const started = performance.now();
 
-if(
-command(text)
-)
-return;
+    try{
+        const response = await fetch(API_BASE + "/api/chat", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                message:text,
+                messages:chatHistory.slice(-24),
+                session_id:sessionId
+            })
+        });
 
+        const data = await response.json().catch(() => ({}));
 
-if(
-state==="idle"
-)
-wakeCore();
+        if(!response.ok || data.ok === false){
+            throw new Error(data.error || "HIVAI gateway request failed");
+        }
 
+        $("gateway").textContent = "ONLINE";
+        $("latency").textContent = Math.round(performance.now() - started) + " MS";
 
-setState("think");
+        const reply = String(data.reply || "I received that, Sir, but no response text was returned.");
+        addMessage("HIVAI",reply);
+        addLog("CORE","Response received // conversation context retained");
 
-thinkSound();
+        await speak(reply);
 
-$("gateway").textContent =
-"PROCESSING";
+        if(state === "speak") setState("wake");
 
+    }catch(error){
+        console.error(error);
+        $("gateway").textContent = "ERROR";
+        $("brainStatus").textContent = "ERROR";
 
-addLog(
-"BRAIN",
-"Secure request transmitted"
-);
-
-
-const started =
-performance.now();
-
-
-try{
-
-const response =
-await fetch(
-API_BASE+
-"/api/chat",
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:
-JSON.stringify({
-
-message:text,
-
-session_id:"web"
-
-})
-
+        const friendly = "I couldn't reach my brain gateway right now. The 3D core is still online. Please check the Vercel /api/chat deployment and OPENAI_API_KEY.";
+        addMessage("HIVAI",friendly);
+        addLog("ERROR",error.message || "Gateway request failed");
+        setState("wake");
+    }finally{
+        requestBusy = false;
+    }
 }
-);
-
-
-const data =
-await response
-.json()
-.catch(
-()=>({})
-);
-
-
-if(
-!response.ok ||
-data.ok===false
-){
-
-throw new Error(
-data.error ||
-"HTTP "+
-response.status
-);
-
-}
-
-
-$("gateway").textContent =
-"ONLINE";
-
-
-$("latency").textContent =
-Math.round(
-performance.now()-
-started
-)+
-" MS";
-
-
-const reply =
-data.reply ||
-data.response ||
-"No response returned.";
-
-
-addMessage(
-"HIVAI",
-reply
-);
-
-
-addLog(
-"CORE",
-"Response received"
-);
-
-
-setState(
-"speak"
-);
-
-
-speak(
-reply
-);
-
-
-setTimeout(
-()=>{
-
-if(
-state==="speak"
-)
-setState("wake");
-
-},
-1200
-);
-
-
-}catch(error){
-
-console.error(error);
-
-
-$("gateway").textContent =
-"OFFLINE";
-
-
-addMessage(
-"HIVAI",
-"Gateway unavailable. Check the backend connection."
-);
-
-
-addLog(
-"ERROR",
-error.message ||
-"Backend unavailable"
-);
-
-
-setState(
-"wake"
-);
-
-}
-
-}
-
 
 /* =========================================================
-   SPEECH OUTPUT
+   CONTROLS
 ========================================================= */
 
-function speak(text){
-
-if(
-!text ||
-!("speechSynthesis" in window)
-)
-return;
-
-
-speechSynthesis.cancel();
-
-unlockAudio();
-
-tone(
-620,
-.08,
-"sine",
-.018
-);
-
-
-const utterance =
-new SpeechSynthesisUtterance(
-text
-);
-
-
-utterance.rate =
-.94;
-
-utterance.pitch =
-.82;
-
-
-utterance.onstart =
-()=>{
-setState("speak");
+$("wakeBtn").onclick = () => {
+    unlockAudio();
+    wakeCore();
+    prepareVoice();
 };
 
-
-utterance.onend =
-()=>{
-
-if(
-state==="speak"
-)
-setState("wake");
-
+$("send").onclick = () => {
+    const text = $("input").value.trim();
+    $("input").value = "";
+    ask(text);
 };
 
+$("input").addEventListener("keydown", event => {
+    if(event.key === "Enter") $("send").click();
+});
 
-speechSynthesis.speak(
-utterance
-);
-
-}
-
-
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-$("wakeBtn").onclick =
-()=>{
-
-unlockAudio();
-
-wakeCore();
-
-};
-
-
-$("send").onclick =
-()=>{
-
-const text =
-$("input")
-.value
-.trim();
-
-$("input").value =
-"";
-
-ask(text);
-
-};
-
-
-$("input")
-.addEventListener(
-"keydown",
-event=>{
-
-if(
-event.key==="Enter"
-)
-$("send").click();
-
-}
-);
-
-
-document
-.querySelectorAll(
-".quick button"
-)
-.forEach(
-button=>{
-
-button.onclick =
-()=>ask(
-button.dataset.cmd
-);
-
-}
-);
-
+document.querySelectorAll(".quick button").forEach(button => {
+    button.onclick = () => ask(button.dataset.cmd);
+});
 
 /* =========================================================
    SPEECH RECOGNITION
 ========================================================= */
 
-const Recognition =
-window.SpeechRecognition ||
-window.webkitSpeechRecognition;
-
-
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition;
 
-
 if(Recognition){
-
-recognition =
-new Recognition();
-
-recognition.lang =
-"en-IN";
-
-recognition.interimResults =
-true;
-
-recognition.continuous =
-false;
-
-
-recognition.onstart =
-()=>{
-
-unlockAudio();
-
-
-if(
-state==="idle"
-)
-wakeCore();
-
-
-setState(
-"listen"
-);
-
-
-listenSound();
-
-
-$("mic")
-.classList.add(
-"active"
-);
-
-
-$("vs").textContent =
-"LISTENING // SPEAK NOW";
-
-
-addLog(
-"VOICE",
-"Microphone channel active"
-);
-
-};
-
-
-recognition.onresult =
-event=>{
-
-let text="";
-
-
-for(
-const result
-of event.results
-){
-
-text +=
-result[0]
-.transcript;
-
-}
-
-
-if(
-event.results[
-event.results.length-1
-]
-.isFinal
-){
-
-$("vs").textContent =
-"INPUT CAPTURED";
-
-
-addLog(
-"USER",
-text
-);
-
-
-ask(text);
-
-}
-
-};
-
-
-recognition.onerror =
-event=>{
-
-console.warn(
-event
-);
-
-$("vs").textContent =
-"VOICE LINK // ERROR";
-
-
-setState(
-awake
-?
-"wake"
-:
-"idle"
-);
-
-};
-
-
-recognition.onend =
-()=>{
-
-$("mic")
-.classList.remove(
-"active"
-);
-
-
-if(
-state==="listen"
-)
-setState(
-"wake"
-);
-
-
-$("vs").textContent =
-"VOICE LINK // READY";
-
-
-audioLevel=0;
-
-};
-
-
-$("mic").onclick =
-()=>{
-
-unlockAudio();
-
-
-try{
-
-recognition.start();
-
-}catch(_){
-
-try{
-
-recognition.stop();
-
-}catch(__){}
-
-}
-
-};
-
+    recognition = new Recognition();
+    recognition.lang = "en-IN";
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onstart = () => {
+        unlockAudio();
+        if(state === "idle") wakeCore();
+        stopVoice();
+        setState("listen");
+        listenSound();
+        $("mic").classList.add("active");
+        $("vs").textContent = "LISTENING // SPEAK NOW";
+        addLog("VOICE","Microphone channel active");
+    };
+
+    recognition.onresult = event => {
+        let text = "";
+        for(const result of event.results) text += result[0].transcript;
+        if(event.results[event.results.length - 1].isFinal){
+            $("vs").textContent = "INPUT CAPTURED";
+            addLog("USER",text);
+            ask(text.trim());
+        }
+    };
+
+    recognition.onerror = event => {
+        console.warn(event);
+        $("vs").textContent = "VOICE LINK // ERROR";
+        setState(awake ? "wake" : "idle");
+    };
+
+    recognition.onend = () => {
+        $("mic").classList.remove("active");
+        if(state === "listen") setState("wake");
+        $("vs").textContent = "VOICE LINK // READY";
+        audioLevel = 0;
+    };
+
+    $("mic").onclick = () => {
+        unlockAudio();
+        prepareVoice();
+        try { recognition.start(); } catch { try { recognition.stop(); } catch {} }
+    };
 }else{
-
-$("vs").textContent =
-"VOICE // USE CHROME OR EDGE";
-
+    $("vs").textContent = "VOICE INPUT // USE CHROME OR EDGE";
 }
-
 
 /* =========================================================
    MICROPHONE VISUALIZER
 ========================================================= */
 
 let analyser;
-
 let micSource;
-
 let micStream;
 
-
 async function setupMicMeter(){
-
-if(analyser)
-return;
-
-
-try{
-
-micStream =
-await navigator.mediaDevices
-.getUserMedia({
-audio:true
-});
-
-
-unlockAudio();
-
-
-analyser =
-audioCtx.createAnalyser();
-
-
-analyser.fftSize =
-256;
-
-
-micSource =
-audioCtx
-.createMediaStreamSource(
-micStream
-);
-
-
-micSource.connect(
-analyser
-);
-
-
-const data =
-new Uint8Array(
-analyser.frequencyBinCount
-);
-
-
-(function meter(){
-
-requestAnimationFrame(
-meter
-);
-
-
-if(!analyser)
-return;
-
-
-analyser.getByteFrequencyData(
-data
-);
-
-
-let total=0;
-
-
-for(
-const value
-of data
-){
-
-total+=value;
-
+    if(analyser) return;
+    try{
+        micStream = await navigator.mediaDevices.getUserMedia({audio:true});
+        unlockAudio();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        micSource = audioCtx.createMediaStreamSource(micStream);
+        micSource.connect(analyser);
+        const data = new Uint8Array(analyser.frequencyBinCount);
+        (function meter(){
+            requestAnimationFrame(meter);
+            if(!analyser) return;
+            analyser.getByteFrequencyData(data);
+            let total = 0;
+            for(const value of data) total += value;
+            audioLevel = Math.min(1,total/data.length/105);
+        })();
+    }catch(error){
+        console.warn("Microphone visualizer unavailable",error);
+    }
 }
 
-
-audioLevel =
-Math.min(
-1,
-total/
-data.length/
-105
-);
-
-})();
-
-
-}catch(error){
-
-console.warn(
-"Microphone visualizer unavailable",
-error
-);
-
-}
-
-}
-
-
-$("mic")
-.addEventListener(
-"click",
-setupMicMeter
-);
-
+$("mic").addEventListener("click",setupMicMeter);
 
 /* =========================================================
-   ANIMATION LOOP
+   ANIMATION
 ========================================================= */
+
+function energy(){
+    const target = state === "idle" ? 18 : state === "wake" ? 72 : state === "listen" ? 90 : state === "think" ? 84 : 68;
+    const value = Math.round(Math.min(99,target + audioLevel * 10));
+    $("energy").textContent = value + "%";
+    $("energyBar").style.width = value + "%";
+    $("load").textContent = Math.round(Math.min(99,target*.9 + audioLevel*30)) + "%";
+}
 
 function animate(ms){
-
-requestAnimationFrame(
-animate
-);
-
-
-const time =
-ms*.001;
-
-
-const stateSpeed = {
-
-idle:.18,
-
-wake:.7,
-
-listen:2.7,
-
-think:1.8,
-
-speak:1.25
-
-}[state] || .5;
-
-
-const base = {
-
-idle:.34,
-
-wake:1,
-
-listen:1.18,
-
-think:1.05,
-
-speak:1.08
-
-}[state] || 1;
-
-
-const targetScale =
-state==="idle"
-?
-.48
-:
-base;
-
-
-const pulse =
-targetScale*
-(
-1+
-Math.sin(
-time*3.2
-)*
-(
-.025+
-audioLevel*.08
-)+
-audioLevel*.16
-);
-
-
-const target =
-new THREE.Vector3(
-pulse,
-pulse,
-pulse
-);
-
-
-core.scale.lerp(
-target,
-.09
-);
-
-
-core.rotation.y +=
-.0025*
-stateSpeed;
-
-core.rotation.x +=
-.0015*
-stateSpeed;
-
-
-shell.rotation.y +=
-.008*
-stateSpeed;
-
-shell.rotation.z -=
-.004*
-stateSpeed;
-
-
-inner.rotation.y -=
-.014*
-stateSpeed;
-
-
-nucleus.scale.setScalar(
-
-1+
-audioLevel*.75+
-Math.sin(time*5)*.05
-
-);
-
-
-glow.scale.setScalar(
-
-(
-state==="idle"
-?
-115
-:
-175
-)
-*
-pulse
-*
-(
-1+
-audioLevel*.2
-)
-
-);
-
-
-glow2.scale.setScalar(
-
-(
-state==="idle"
-?
-28
-:
-62
-)
-*
-pulse
-*
-(
-1+
-audioLevel*.5
-)
-
-);
-
-
-rings.forEach(
-(r,index)=>{
-
-r.rotation.z +=
-(
-index%2
-?
-.0018
-:
--.0012
-)
-*
-stateSpeed;
-
-r.rotation.x +=
-(
-index%2
-?
-.0008
-:
--.0005
-)
-*
-stateSpeed;
-
-
-r.scale.setScalar(
-
-state==="idle"
-?
-.72
-:
-1+
-audioLevel*.08
-
-);
-
+    requestAnimationFrame(animate);
+    const time = ms*.001;
+    const stateSpeed = {idle:.18,wake:.7,listen:2.7,think:1.8,speak:1.25}[state] || .5;
+    const base = {idle:.34,wake:1,listen:1.18,think:1.05,speak:1.08}[state] || 1;
+    const targetScale = state === "idle" ? .48 : base;
+    const voiceEnergy = speaking ? Math.max(audioLevel,getVoiceEnergy()) : audioLevel;
+    const pulse = targetScale*(1 + Math.sin(time*3.2)*(.025+voiceEnergy*.08) + voiceEnergy*.16);
+    const target = new THREE.Vector3(pulse,pulse,pulse);
+    core.scale.lerp(target,.09);
+    core.rotation.y += .0025*stateSpeed;
+    core.rotation.x += .0015*stateSpeed;
+    shell.rotation.y += .008*stateSpeed;
+    shell.rotation.z -= .004*stateSpeed;
+    inner.rotation.y -= .014*stateSpeed;
+    nucleus.scale.setScalar(1 + voiceEnergy*.75 + Math.sin(time*5)*.05);
+    nucleusShell.rotation.x += .004*stateSpeed;
+    nucleusShell.rotation.y -= .007*stateSpeed;
+    nucleusShell.scale.setScalar(1 + voiceEnergy*.18);
+    nucleusGlow.scale.setScalar((state === "idle" ? 48 : 82)*pulse*(1+voiceEnergy*.3));
+    nucleusGlow.material.opacity = state === "idle" ? .3 : .78 + voiceEnergy*.2;
+    nucleusRingA.rotation.z += .018*stateSpeed;
+    nucleusRingA.rotation.y -= .009*stateSpeed;
+    nucleusRingA.scale.setScalar(1 + voiceEnergy*.12);
+    nucleusRingB.rotation.x -= .013*stateSpeed;
+    nucleusRingB.rotation.z += .006*stateSpeed;
+    glow.scale.setScalar((state === "idle" ? 115 : 175)*pulse*(1+voiceEnergy*.2));
+    glow2.scale.setScalar((state === "idle" ? 28 : 62)*pulse*(1+voiceEnergy*.5));
+    rings.forEach((r,index)=>{
+        r.rotation.z += (index%2 ? .0018 : -.0012)*stateSpeed;
+        r.rotation.x += (index%2 ? .0008 : -.0005)*stateSpeed;
+        r.scale.setScalar(state === "idle" ? .72 : 1 + voiceEnergy*.08);
+    });
+    points.rotation.z = time*.018*stateSpeed;
+    points.rotation.y = time*.009*stateSpeed;
+    particleMaterial.size = state === "idle" ? 1.25 : 2.1 + voiceEnergy*2.2;
+    particleMaterial.opacity = state === "idle" ? .28 : .5 + voiceEnergy*.38;
+    rays.rotation.z = -time*.025*stateSpeed;
+    rays.scale.setScalar(state === "idle" ? .7 : 1 + voiceEnergy*.12);
+    rays.children.forEach((line,index)=>{
+        line.material.opacity = (state === "idle" ? .05 : .1) + (index%5===0 ? voiceEnergy*.3 : voiceEnergy*.08);
+    });
+    nodes.forEach(node=>{
+        node.a += .004*node.v*stateSpeed;
+        const radius = node.r*(state === "idle" ? .62 : 1+voiceEnergy*.12);
+        node.s.position.set(Math.cos(node.a)*radius,Math.sin(node.a)*radius*.58,node.y+Math.sin(time*2+node.r)*18);
+        node.s.scale.setScalar(state === "idle" ? 2.5 : 7+voiceEnergy*22);
+    });
+    energy();
+    renderer.render(scene,camera);
 }
-);
+requestAnimationFrame(animate);
 
-
-points.rotation.z =
-time*
-.018*
-stateSpeed;
-
-points.rotation.y =
-time*
-.009*
-stateSpeed;
-
-
-particleMaterial.size =
-
-state==="idle"
-?
-1.25
-:
-2.1+
-audioLevel*2.2;
-
-
-particleMaterial.opacity =
-
-state==="idle"
-?
-.28
-:
-.5+
-audioLevel*.38;
-
-
-rays.rotation.z =
--time*
-.025*
-stateSpeed;
-
-
-rays.scale.setScalar(
-
-state==="idle"
-?
-.7
-:
-1+
-audioLevel*.12
-
-);
-
-
-rays.children.forEach(
-(line,index)=>{
-
-line.material.opacity =
-
-(
-state==="idle"
-?
-.05
-:
-.1
-)+
-
-(
-index%5===0
-?
-audioLevel*.3
-:
-audioLevel*.08
-);
-
-}
-);
-
-
-nodes.forEach(
-node=>{
-
-node.a +=
-.004*
-node.v*
-stateSpeed;
-
-
-const radius =
-
-node.r*
-(
-state==="idle"
-?
-.62
-:
-1+
-audioLevel*.12
-);
-
-
-node.s.position.set(
-
-Math.cos(node.a)*
-radius,
-
-Math.sin(node.a)*
-radius*
-.58,
-
-node.y+
-Math.sin(
-time*2+
-node.r
-)*
-18
-
-);
-
-
-node.s.scale.setScalar(
-
-state==="idle"
-?
-2.5
-:
-7+
-audioLevel*22
-
-);
-
-}
-);
-
-
-energy();
-
-
-renderer.render(
-scene,
-camera
-);
-
-}
-
-
-requestAnimationFrame(
-animate
-);
-
-
-/* =========================================================
-   RESIZE
-========================================================= */
-
+/* RESIZE */
 function resize(){
-
-camera.aspect =
-innerWidth/
-innerHeight;
-
-camera.updateProjectionMatrix();
-
-renderer.setSize(
-innerWidth,
-innerHeight
-);
-
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
 }
+addEventListener("resize",resize);
 
-
-addEventListener(
-"resize",
-resize
-);
-
-
-/* =========================================================
-   CLOCK
-========================================================= */
-
-function updateClock(){
-
-$("clock").textContent =
-new Date()
-.toLocaleTimeString(
-[],
-{
-hour12:false
-}
-);
-
-}
-
-
+/* CLOCK */
+function updateClock(){ $("clock").textContent = new Date().toLocaleTimeString([],{hour12:false}); }
 updateClock();
+setInterval(updateClock,1000);
 
-setInterval(
-updateClock,
-1000
-);
+/* BACKEND HEALTH */
+fetch(API_BASE + "/api/health",{cache:"no-store"})
+.then(response=>{ if(!response.ok) throw 0; return response.json(); })
+.then(()=>{
+    $("gateway").textContent = "ONLINE";
+    addLog("GATEWAY","Health check passed // chat brain ready");
+})
+.catch(()=>{
+    $("gateway").textContent = "OFFLINE";
+    addLog("GATEWAY","Chat backend not detected // 3D core remains active");
+});
 
+setState("idle");
 
-/* =========================================================
-   BACKEND HEALTH
-========================================================= */
-
-fetch(
-API_BASE+
-"/api/health",
-{
-cache:"no-store"
-}
-)
-
-.then(
-response=>{
-
-if(!response.ok)
-throw 0;
-
-return response.json();
-
-}
-)
-
-.then(
-()=>{
-
-$("gateway").textContent =
-"ONLINE";
-
-addLog(
-"GATEWAY",
-"Health check passed"
-);
-
-}
-)
-
-.catch(
-()=>{
-
-$("gateway").textContent =
-"OFFLINE";
-
-addLog(
-"GATEWAY",
-"Backend not detected — 3D core remains active"
-);
-
-}
-);
-
-
-/* START SLEEP */
-
-setState(
-"idle"
-);
-
-
-/*
-IMPORTANT:
-Browsers block automatic audio until
-the user interacts with the page.
-So the real boot sound starts after
-the first interaction.
-*/
-
-document.addEventListener(
-"pointerdown",
-()=>{
-
-try{
-unlockAudio();
-}catch(_){}
-
-},
-{
-once:true
-}
-);
+document.addEventListener("pointerdown",()=>{
+    try{ unlockAudio(); }catch(_){ }
+},{once:true});
 
 </script>
 
