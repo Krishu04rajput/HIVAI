@@ -3,658 +3,667 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>HIVAI // Hive Intelligence Virtual AI</title>
+<meta name="theme-color" content="#010509">
+
+<title>HIVAI // Hive Intelligence Virtual AI System</title>
 
 <style>
+
 :root{
-    --cyan:#00eaff;
-    --cyan2:#63f8ff;
-    --orange:#ff8a00;
-    --orange2:#ffc15c;
-    --bg:#010509;
-    --panel:rgba(2,12,18,.78);
-    --line:rgba(0,234,255,.25);
-    --text:#d9fbff;
-    --muted:#568b94;
+--cyan:#00eaff;
+--cyan2:#8bfbff;
+--orange:#ff8a00;
+--orange2:#ffd27a;
+--bg:#010509;
+--panel:rgba(2,12,18,.78);
+--line:rgba(0,234,255,.24);
+--text:#d9fbff;
+--muted:#568b94;
 }
 
 *{
-    box-sizing:border-box;
+box-sizing:border-box;
 }
 
 html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:var(--bg);
-    color:var(--text);
-    font-family:
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace;
+margin:0;
+width:100%;
+height:100%;
+overflow:hidden;
+background:var(--bg);
+color:var(--text);
+font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
 }
 
-body{
-    position:relative;
+button,input{
+font:inherit;
 }
 
-/* =========================
-   3D WORLD
-========================= */
+button{
+cursor:pointer;
+}
 
 #scene{
-    position:fixed;
-    inset:0;
-    z-index:0;
+position:fixed;
+inset:0;
+z-index:0;
 }
 
 canvas{
-    display:block;
+display:block;
 }
-
-/* =========================
-   CINEMATIC OVERLAY
-========================= */
 
 .vignette,
 .scanlines,
 .grid{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
+position:fixed;
+inset:0;
+pointer-events:none;
 }
 
 .vignette{
-    z-index:1;
-    background:
-    radial-gradient(
-        circle at center,
-        transparent 28%,
-        rgba(0,0,0,.18) 58%,
-        rgba(0,0,0,.82) 100%
-    );
+z-index:1;
+background:
+radial-gradient(
+circle at center,
+transparent 25%,
+rgba(0,0,0,.2) 60%,
+rgba(0,0,0,.9) 100%
+);
 }
 
 .scanlines{
-    z-index:2;
-    opacity:.08;
-    background:
-    repeating-linear-gradient(
-        0deg,
-        transparent 0px,
-        transparent 3px,
-        rgba(0,234,255,.08) 4px
-    );
+z-index:2;
+opacity:.07;
+background:
+repeating-linear-gradient(
+0deg,
+transparent 0 3px,
+rgba(0,234,255,.08) 4px
+);
 }
 
 .grid{
-    z-index:1;
-    opacity:.08;
-    background-image:
-    linear-gradient(
-        rgba(0,234,255,.25) 1px,
-        transparent 1px
-    ),
-    linear-gradient(
-        90deg,
-        rgba(0,234,255,.25) 1px,
-        transparent 1px
-    );
-    background-size:60px 60px;
-    mask-image:
-    radial-gradient(
-        circle at center,
-        black,
-        transparent 72%
-    );
+z-index:1;
+opacity:.06;
+background-image:
+linear-gradient(
+rgba(0,234,255,.25) 1px,
+transparent 1px
+),
+linear-gradient(
+90deg,
+rgba(0,234,255,.25) 1px,
+transparent 1px
+);
+background-size:60px 60px;
+mask-image:
+radial-gradient(
+circle at center,
+black,
+transparent 72%
+);
 }
 
-/* =========================
-   HUD
-========================= */
+/* HUD */
 
 .hud{
-    position:fixed;
-    inset:0;
-    z-index:5;
-    pointer-events:none;
+position:fixed;
+inset:0;
+z-index:5;
+pointer-events:none;
 }
 
 .topbar{
-    height:70px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+height:70px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 28px;
 
-    padding:0 28px;
+border-bottom:1px solid var(--line);
 
-    border-bottom:1px solid var(--line);
+background:
+linear-gradient(
+180deg,
+rgba(1,8,13,.96),
+rgba(1,8,13,.38)
+);
 
-    background:
-    linear-gradient(
-        180deg,
-        rgba(1,8,13,.94),
-        rgba(1,8,13,.42)
-    );
+pointer-events:auto;
 }
 
 .brand{
-    display:flex;
-    align-items:center;
-    gap:15px;
+display:flex;
+align-items:center;
+gap:15px;
 }
 
 .diamond{
-    width:15px;
-    height:15px;
-    border:1px solid var(--cyan);
-    transform:rotate(45deg);
-    box-shadow:
-    0 0 15px rgba(0,234,255,.7);
+width:15px;
+height:15px;
+border:1px solid var(--cyan);
+transform:rotate(45deg);
+box-shadow:0 0 15px rgba(0,234,255,.7);
+animation:diamond 2.4s linear infinite;
 }
 
 .brand h1{
-    margin:0;
-    color:var(--cyan);
-    font-size:22px;
-    letter-spacing:6px;
+margin:0;
+color:var(--cyan);
+font-size:22px;
+letter-spacing:6px;
 }
 
 .brand small{
-    display:block;
-    margin-top:4px;
-    color:var(--muted);
-    font-size:8px;
-    letter-spacing:2px;
+display:block;
+margin-top:4px;
+color:var(--muted);
+font-size:8px;
+letter-spacing:2px;
 }
 
 .topstats{
-    display:flex;
-    gap:25px;
-    color:var(--muted);
-    font-size:8px;
-    letter-spacing:1.5px;
+display:flex;
+gap:25px;
+color:var(--muted);
+font-size:8px;
+letter-spacing:1.5px;
 }
 
 .topstats b{
-    color:var(--cyan);
-    font-weight:500;
+color:var(--cyan);
+font-weight:500;
 }
 
 .dot{
-    display:inline-block;
-    width:6px;
-    height:6px;
-    margin-right:5px;
-    border-radius:50%;
-    background:var(--cyan);
-    box-shadow:0 0 12px var(--cyan);
-    animation:blink 1.3s infinite;
+display:inline-block;
+width:6px;
+height:6px;
+margin-right:5px;
+border-radius:50%;
+background:var(--cyan);
+box-shadow:0 0 12px var(--cyan);
+animation:blink 1.3s infinite;
 }
 
-/* =========================
-   MAIN GRID
-========================= */
+/* LAYOUT */
 
 .layout{
-    position:absolute;
-    top:84px;
-    bottom:22px;
-    left:20px;
-    right:20px;
+position:absolute;
+top:84px;
+bottom:22px;
+left:20px;
+right:20px;
 
-    display:grid;
+display:grid;
 
-    grid-template-columns:
-    245px
-    minmax(350px,1fr)
-    285px;
+grid-template-columns:
+245px
+minmax(350px,1fr)
+285px;
 
-    gap:17px;
+gap:17px;
 }
 
 .column{
-    display:flex;
-    flex-direction:column;
-    gap:13px;
-    min-height:0;
+display:flex;
+flex-direction:column;
+gap:13px;
+min-height:0;
 }
 
 .panel{
-    position:relative;
+position:relative;
+padding:14px;
 
-    padding:14px;
+background:var(--panel);
 
-    background:var(--panel);
+border:1px solid var(--line);
 
-    border:1px solid var(--line);
+backdrop-filter:blur(10px);
 
-    backdrop-filter:blur(10px);
+clip-path:
+polygon(
+0 0,
+calc(100% - 11px) 0,
+100% 11px,
+100% 100%,
+11px 100%,
+0 calc(100% - 11px)
+);
 
-    clip-path:
-    polygon(
-        0 0,
-        calc(100% - 11px) 0,
-        100% 11px,
-        100% 100%,
-        11px 100%,
-        0 calc(100% - 11px)
-    );
+box-shadow:
+inset 0 0 30px rgba(0,234,255,.035),
+0 0 25px rgba(0,0,0,.3);
 
-    box-shadow:
-    inset 0 0 30px rgba(0,234,255,.035),
-    0 0 25px rgba(0,0,0,.3);
-
-    pointer-events:auto;
+pointer-events:auto;
 }
 
 .panel::before{
-    content:"";
-    position:absolute;
-    left:-1px;
-    top:-1px;
-    width:8px;
-    height:8px;
+content:"";
+position:absolute;
+left:-1px;
+top:-1px;
+width:8px;
+height:8px;
 
-    border-top:2px solid var(--cyan);
-    border-left:2px solid var(--cyan);
+border-top:2px solid var(--cyan);
+border-left:2px solid var(--cyan);
 }
 
 .title{
-    color:var(--cyan);
-    font-size:8px;
-    letter-spacing:2px;
-    margin-bottom:12px;
+color:var(--cyan);
+font-size:8px;
+letter-spacing:2px;
+margin-bottom:12px;
 }
 
 .row{
-    display:flex;
-    justify-content:space-between;
-
-    margin:9px 0;
-
-    color:var(--muted);
-    font-size:8px;
+display:flex;
+justify-content:space-between;
+margin:9px 0;
+color:var(--muted);
+font-size:8px;
 }
 
 .row b{
-    color:var(--cyan);
-    font-weight:500;
+color:var(--cyan);
+font-weight:500;
 }
 
 .orange{
-    color:var(--orange2)!important;
+color:var(--orange2)!important;
 }
 
 .statgrid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:7px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:7px;
 }
 
 .stat{
-    padding:9px;
-
-    border:1px solid rgba(0,234,255,.13);
-
-    background:rgba(0,234,255,.025);
+padding:9px;
+border:1px solid rgba(0,234,255,.13);
+background:rgba(0,234,255,.025);
 }
 
 .stat span{
-    display:block;
-    margin-bottom:5px;
-
-    color:var(--muted);
-    font-size:7px;
+display:block;
+margin-bottom:5px;
+color:var(--muted);
+font-size:7px;
 }
 
 .stat b{
-    color:var(--text);
-    font-size:11px;
-    font-weight:500;
+color:var(--text);
+font-size:11px;
+font-weight:500;
 }
 
 .bar{
-    height:3px;
-    overflow:hidden;
-    background:rgba(0,234,255,.08);
+height:3px;
+overflow:hidden;
+background:rgba(0,234,255,.08);
 }
 
 .bar i{
-    display:block;
-    width:82%;
-    height:100%;
+display:block;
+width:82%;
+height:100%;
 
-    background:
-    linear-gradient(
-        90deg,
-        var(--cyan),
-        var(--orange)
-    );
+background:
+linear-gradient(
+90deg,
+var(--cyan),
+var(--orange)
+);
 
-    box-shadow:0 0 12px var(--cyan);
+box-shadow:0 0 12px var(--cyan);
+
+transition:width .35s ease;
 }
 
 .state-list div{
-    display:flex;
-    justify-content:space-between;
+display:flex;
+justify-content:space-between;
+padding:8px 0;
 
-    padding:8px 0;
+border-bottom:
+1px solid rgba(0,234,255,.08);
 
-    border-bottom:1px solid rgba(0,234,255,.08);
-
-    color:#507f88;
-    font-size:8px;
+color:#507f88;
+font-size:8px;
 }
 
 .state-list .active{
-    color:var(--cyan);
-    text-shadow:0 0 9px rgba(0,234,255,.5);
+color:var(--cyan);
+text-shadow:0 0 9px rgba(0,234,255,.5);
 }
 
 .state-list .active span{
-    color:var(--orange);
+color:var(--orange);
 }
 
 .grow{
-    flex:1;
-    min-height:0;
+flex:1;
+min-height:0;
 }
 
 .log{
-    color:#568b94;
-    font-size:7px;
-    line-height:1.9;
+color:#568b94;
+font-size:7px;
+line-height:1.9;
+overflow:auto;
 }
 
 .log b{
-    color:var(--cyan);
-    font-weight:500;
+color:var(--cyan);
+font-weight:500;
 }
 
-/* =========================
-   CORE AREA
-========================= */
+/* CORE AREA */
 
 .core-area{
-    position:relative;
+position:relative;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
+display:flex;
+align-items:center;
+justify-content:center;
 
-    overflow:hidden;
+overflow:hidden;
 
-    border:1px solid rgba(0,234,255,.12);
+border:
+1px solid rgba(0,234,255,.12);
 
-    background:
-    radial-gradient(
-        circle at center,
-        rgba(0,234,255,.07),
-        transparent 48%
-    );
+background:
+radial-gradient(
+circle at center,
+rgba(0,234,255,.07),
+transparent 48%
+);
+
+pointer-events:none;
 }
 
 .core-title{
-    position:absolute;
-    top:17px;
-
-    text-align:center;
-
-    z-index:5;
+position:absolute;
+top:17px;
+text-align:center;
+z-index:5;
 }
 
 .core-title strong{
-    display:block;
-
-    color:var(--cyan);
-
-    font-size:12px;
-    letter-spacing:5px;
+display:block;
+color:var(--cyan);
+font-size:12px;
+letter-spacing:5px;
 }
 
 .core-title span{
-    color:var(--muted);
-
-    font-size:7px;
-    letter-spacing:2px;
+color:var(--muted);
+font-size:7px;
+letter-spacing:2px;
 }
 
 .state{
-    position:absolute;
-    bottom:72px;
+position:absolute;
+bottom:72px;
+z-index:5;
 
-    z-index:5;
+text-align:center;
 
-    text-align:center;
-
-    color:var(--muted);
-
-    font-size:8px;
-    letter-spacing:3px;
+color:var(--muted);
+font-size:8px;
+letter-spacing:3px;
 }
 
 .state b{
-    color:var(--cyan);
-    font-weight:500;
+color:var(--cyan);
+font-weight:500;
 }
 
 .voice{
-    position:absolute;
-    bottom:17px;
+position:absolute;
+bottom:17px;
 
-    display:flex;
-    align-items:center;
-    gap:9px;
+display:flex;
+align-items:center;
+gap:9px;
 
-    z-index:6;
+z-index:6;
+pointer-events:auto;
 }
 
 .mic{
-    width:48px;
-    height:48px;
+width:48px;
+height:48px;
 
-    border-radius:50%;
+border-radius:50%;
 
-    border:1px solid var(--cyan);
+border:1px solid var(--cyan);
 
-    background:rgba(0,234,255,.04);
+background:rgba(0,234,255,.04);
 
-    color:var(--cyan);
+color:var(--cyan);
 
-    font-size:17px;
+font-size:17px;
 
-    cursor:pointer;
+box-shadow:
+0 0 20px rgba(0,234,255,.25);
 
-    box-shadow:
-    0 0 20px rgba(0,234,255,.25);
+transition:.25s;
+}
+
+.mic:hover{
+transform:scale(1.05);
+
+box-shadow:
+0 0 30px rgba(0,234,255,.42);
 }
 
 .mic.active{
-    color:var(--orange2);
-    border-color:var(--orange);
+color:var(--orange2);
 
-    box-shadow:
-    0 0 30px rgba(255,138,0,.5),
-    inset 0 0 20px rgba(255,138,0,.15);
+border-color:var(--orange);
 
-    animation:micPulse .8s infinite;
+box-shadow:
+0 0 30px rgba(255,138,0,.5),
+inset 0 0 20px rgba(255,138,0,.15);
+
+animation:micPulse .8s infinite;
 }
 
 .vstatus{
-    padding:10px 15px;
+padding:10px 15px;
 
-    border:1px solid var(--line);
-    border-radius:20px;
+border:
+1px solid var(--line);
 
-    background:rgba(1,8,13,.88);
+border-radius:20px;
 
-    color:var(--muted);
+background:rgba(1,8,13,.88);
 
-    font-size:7px;
-    letter-spacing:2px;
+color:var(--muted);
+
+font-size:7px;
+letter-spacing:2px;
 }
 
-/* =========================
-   CHAT
-========================= */
+.wake{
+padding:10px 12px;
+
+border:
+1px solid rgba(0,234,255,.35);
+
+background:rgba(0,234,255,.04);
+
+color:var(--cyan);
+
+font-size:7px;
+letter-spacing:1px;
+}
+
+.wake:hover{
+border-color:var(--orange);
+color:var(--orange2);
+}
+
+/* CHAT */
 
 .chat{
-    height:260px;
-
-    display:flex;
-    flex-direction:column;
+height:260px;
+display:flex;
+flex-direction:column;
 }
 
 .messages{
-    flex:1;
+flex:1;
+overflow:auto;
 
-    overflow:auto;
+color:#78aeb7;
 
-    color:#78aeb7;
-
-    font-size:8px;
-    line-height:1.7;
+font-size:8px;
+line-height:1.7;
 }
 
 .messages div{
-    margin:7px 0;
+margin:7px 0;
 }
 
 .messages b{
-    color:var(--cyan);
-    font-weight:500;
+color:var(--cyan);
+font-weight:500;
 }
 
 .input{
-    display:flex;
-    gap:6px;
-
-    margin-top:8px;
+display:flex;
+gap:6px;
+margin-top:8px;
 }
 
 .input input{
-    flex:1;
+flex:1;
+min-width:0;
 
-    min-width:0;
+padding:9px;
 
-    padding:9px;
+background:#01080d;
 
-    background:#01080d;
+border:
+1px solid var(--line);
 
-    border:1px solid var(--line);
+outline:none;
 
-    outline:none;
+color:var(--text);
 
-    color:var(--text);
-
-    font:8px monospace;
+font:8px monospace;
 }
 
 .input button{
-    padding:0 11px;
+padding:0 11px;
 
-    border:1px solid var(--cyan);
+border:
+1px solid var(--cyan);
 
-    background:rgba(0,234,255,.04);
+background:rgba(0,234,255,.04);
 
-    color:var(--cyan);
+color:var(--cyan);
 
-    font:8px monospace;
-
-    cursor:pointer;
+font:8px monospace;
 }
 
-/* =========================
-   QUICK COMMANDS
-========================= */
-
 .quick{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:6px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:6px;
 }
 
 .quick button{
-    padding:8px 4px;
+padding:8px 4px;
 
-    border:1px solid rgba(0,234,255,.18);
+border:
+1px solid rgba(0,234,255,.18);
 
-    background:rgba(0,234,255,.025);
+background:rgba(0,234,255,.025);
 
-    color:#75adb5;
+color:#75adb5;
 
-    font:7px monospace;
-
-    cursor:pointer;
+font:7px monospace;
 }
 
 .quick button:hover{
-    border-color:var(--cyan);
-    color:var(--cyan);
+border-color:var(--cyan);
+color:var(--cyan);
 
-    box-shadow:
-    0 0 12px rgba(0,234,255,.15);
+box-shadow:
+0 0 12px rgba(0,234,255,.15);
 }
 
-/* =========================
-   ANIMATIONS
-========================= */
+/* ANIMATION */
 
 @keyframes blink{
-    50%{
-        opacity:.3;
-    }
+50%{
+opacity:.3;
+}
 }
 
 @keyframes micPulse{
-    50%{
-        transform:scale(1.08);
-    }
+50%{
+transform:scale(1.08);
+}
 }
 
-/* =========================
-   MOBILE
-========================= */
+@keyframes diamond{
+to{
+transform:rotate(405deg);
+}
+}
 
 @media(max-width:980px){
 
-    .layout{
-        grid-template-columns:1fr;
-    }
-
-    .column{
-        display:none;
-    }
-
-    .core-area{
-        height:100%;
-    }
-
-    .topstats{
-        display:none;
-    }
-
-    .topbar{
-        padding:0 15px;
-    }
-
-    .brand h1{
-        font-size:17px;
-    }
+.layout{
+grid-template-columns:1fr;
 }
+
+.column{
+display:none;
+}
+
+.core-area{
+height:100%;
+}
+
+.topstats{
+display:none;
+}
+
+.topbar{
+padding:0 15px;
+}
+
+.brand h1{
+font-size:17px;
+}
+
+.core-title{
+top:10px;
+}
+
+.state{
+bottom:90px;
+}
+
+}
+
 </style>
 
 <script type="importmap">
 {
-    "imports":{
-        "three":
-        "https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js"
-    }
+"imports":{
+"three":
+"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js"
+}
 }
 </script>
 
@@ -662,380 +671,368 @@ canvas{
 
 <body>
 
-<!-- 3D WORLD -->
 <div id="scene"></div>
 
-<!-- HUD FX -->
 <div class="grid"></div>
 <div class="scanlines"></div>
 <div class="vignette"></div>
 
-
 <div class="hud">
-
-<!-- =========================
-     TOP BAR
-========================= -->
 
 <header class="topbar">
 
-    <div class="brand">
+<div class="brand">
 
-        <div class="diamond"></div>
+<div class="diamond"></div>
 
-        <div>
-            <h1>HIVAI</h1>
+<div>
 
-            <small>
-                HIVE INTELLIGENCE VIRTUAL AI SYSTEM // 3D CORE
-            </small>
-        </div>
+<h1>HIVAI</h1>
 
-    </div>
+<small>
+HIVE INTELLIGENCE VIRTUAL AI SYSTEM // 3D CORE
+</small>
 
+</div>
 
-    <div class="topstats">
+</div>
 
-        <span>
-            STATUS
-            <b>
-                <i class="dot"></i>
-                <span id="status">OPTIMAL</span>
-            </b>
-        </span>
+<div class="topstats">
 
-        <span>
-            LOCAL
-            <b id="clock">--:--:--</b>
-        </span>
+<span>
+STATUS
+<b>
+<i class="dot"></i>
+<span id="status">SLEEP</span>
+</b>
+</span>
 
-        <span>
-            GATEWAY
-            <b id="gateway">CHECKING</b>
-        </span>
+<span>
+LOCAL
+<b id="clock">--:--:--</b>
+</span>
 
-        <span>
-            SIR // USER
-        </span>
+<span>
+GATEWAY
+<b id="gateway">CHECKING</b>
+</span>
 
-    </div>
+<span>SIR // USER</span>
+
+</div>
 
 </header>
 
-
-<!-- =========================
-     MAIN
-========================= -->
-
 <main class="layout">
 
-
-<!-- =========================
-     LEFT
-========================= -->
+<!-- LEFT -->
 
 <aside class="column">
 
 <section class="panel">
 
-    <div class="title">
-        SYSTEM // CORE STATUS
-    </div>
+<div class="title">
+SYSTEM // CORE STATUS
+</div>
 
-    <div class="row">
-        <span>CORE</span>
-        <b id="coreStatus">ONLINE</b>
-    </div>
+<div class="row">
+<span>CORE</span>
+<b id="coreStatus">SLEEP</b>
+</div>
 
-    <div class="row">
-        <span>BRAIN</span>
-        <b id="brainStatus">STANDBY</b>
-    </div>
+<div class="row">
+<span>BRAIN</span>
+<b id="brainStatus">STANDBY</b>
+</div>
 
-    <div class="row">
-        <span>VOICE</span>
-        <b>READY</b>
-    </div>
+<div class="row">
+<span>VOICE</span>
+<b>READY</b>
+</div>
 
-    <div class="row">
-        <span>MEMORY</span>
-        <b>LOCAL</b>
-    </div>
-
-</section>
-
-
-<section class="panel">
-
-    <div class="title">
-        ENERGY MATRIX
-    </div>
-
-    <div class="statgrid">
-
-        <div class="stat">
-            <span>CORE ENERGY</span>
-            <b id="energy">87%</b>
-        </div>
-
-        <div class="stat">
-            <span>STABILITY</span>
-            <b>98.7%</b>
-        </div>
-
-        <div class="stat">
-            <span>LATENCY</span>
-            <b>24 MS</b>
-        </div>
-
-        <div class="stat">
-            <span>MODE</span>
-            <b class="orange" id="mode">
-                SLEEP
-            </b>
-        </div>
-
-    </div>
-
-    <div class="row">
-        <span>REACTOR LOAD</span>
-        <b id="load">34%</b>
-    </div>
-
-    <div class="bar">
-        <i id="energyBar"></i>
-    </div>
+<div class="row">
+<span>MEMORY</span>
+<b>LOCAL</b>
+</div>
 
 </section>
 
 
 <section class="panel">
 
-    <div class="title">
-        STATE ENGINE
-    </div>
+<div class="title">
+ENERGY MATRIX
+</div>
 
-    <div class="state-list">
+<div class="statgrid">
 
-        <div id="idle" class="active">
-            SLEEP
-            <span>●</span>
-        </div>
+<div class="stat">
+<span>CORE ENERGY</span>
+<b id="energy">18%</b>
+</div>
 
-        <div id="listen">
-            LISTENING
-            <span>○</span>
-        </div>
+<div class="stat">
+<span>STABILITY</span>
+<b>98.7%</b>
+</div>
 
-        <div id="think">
-            THINKING
-            <span>○</span>
-        </div>
+<div class="stat">
+<span>LATENCY</span>
+<b id="latency">-- MS</b>
+</div>
 
-        <div id="speak">
-            SPEAKING
-            <span>○</span>
-        </div>
+<div class="stat">
+<span>MODE</span>
+<b class="orange" id="mode">SLEEP</b>
+</div>
 
-    </div>
+</div>
+
+<div class="row">
+<span>REACTOR LOAD</span>
+<b id="load">8%</b>
+</div>
+
+<div class="bar">
+<i id="energyBar" style="width:18%"></i>
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<div class="title">
+STATE ENGINE
+</div>
+
+<div class="state-list">
+
+<div id="idle" class="active">
+SLEEP
+<span>●</span>
+</div>
+
+<div id="wakeState">
+WAKE
+<span>○</span>
+</div>
+
+<div id="listen">
+LISTENING
+<span>○</span>
+</div>
+
+<div id="think">
+THINKING
+<span>○</span>
+</div>
+
+<div id="speak">
+SPEAKING
+<span>○</span>
+</div>
+
+</div>
 
 </section>
 
 
 <section class="panel grow">
 
-    <div class="title">
-        SECURITY // LOCAL
-    </div>
+<div class="title">
+SECURITY // LOCAL
+</div>
 
-    <div class="log">
+<div class="log">
 
-        <b>CLIENT KEY</b>
-        NONE
-        <br>
+<b>CLIENT KEY</b> NONE
+<br>
 
-        <b>SERVER SECRETS</b>
-        PROTECTED
-        <br>
+<b>SERVER SECRETS</b> PROTECTED
+<br>
 
-        <b>VOICE</b>
-        BROWSER CHANNEL
-        <br>
+<b>VOICE</b> BROWSER CHANNEL
+<br>
 
-        <b>3D ENGINE</b>
-        WEBGL
-        <br><br>
+<b>3D ENGINE</b> WEBGL
+<br><br>
 
-        HIVAI UI never needs the provider key.
+HIVAI UI never needs the provider key.
+<br>
 
-        <br>
+The browser communicates with the secure HIVAI gateway.
 
-        The browser communicates with
-        the secure HIVAI gateway.
-
-    </div>
+</div>
 
 </section>
 
 </aside>
 
 
-<!-- =========================
-     CENTRAL CORE
-========================= -->
+<!-- CORE -->
 
 <section
-    class="core-area"
-    id="coreArea"
+class="core-area"
+id="coreArea"
 >
 
-    <div class="core-title">
+<div class="core-title">
 
-        <strong>
-            HIVAI CORE
-        </strong>
+<strong>
+HIVAI CORE
+</strong>
 
-        <span>
-            // ENERGY INTELLIGENCE NEXUS
-        </span>
+<span>
+// ENERGY INTELLIGENCE NEXUS
+</span>
 
-    </div>
+</div>
 
+<div class="state">
 
-    <div class="state">
+SYSTEM //
 
-        SYSTEM //
+<b id="state">
+SLEEPING // AWAITING COMMAND
+</b>
 
-        <b id="state">
-            SLEEPING // AWAITING COMMAND
-        </b>
+</div>
 
-    </div>
+<div class="voice">
 
+<button
+class="wake"
+id="wakeBtn"
+>
+WAKE CORE
+</button>
 
-    <div class="voice">
+<button
+class="mic"
+id="mic"
+aria-label="Voice input"
+>
+◉
+</button>
 
-        <button
-            class="mic"
-            id="mic"
-        >
-            ◉
-        </button>
+<div
+class="vstatus"
+id="vs"
+>
+VOICE LINK // READY
+</div>
 
-        <div
-            class="vstatus"
-            id="vs"
-        >
-            VOICE LINK // READY
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     RIGHT
-========================= -->
+<!-- RIGHT -->
 
 <aside class="column">
 
-
 <section class="panel chat">
 
-    <div class="title">
-        HIVAI // BRAIN CONSOLE
-    </div>
+<div class="title">
+HIVAI // BRAIN CONSOLE
+</div>
 
-    <div
-        class="messages"
-        id="messages"
-    >
+<div
+class="messages"
+id="messages"
+>
 
-        <div>
-            <b>HIVAI:</b>
-            Core online. Awaiting your command.
-        </div>
+<div>
+<b>HIVAI:</b>
+Core is sleeping.
+Press WAKE CORE or the microphone to activate me.
+</div>
 
-    </div>
+</div>
 
+<div class="input">
 
-    <div class="input">
+<input
+id="input"
+placeholder="Command HIVAI..."
+autocomplete="off"
+>
 
-        <input
-            id="input"
-            placeholder="Command HIVAI..."
-            autocomplete="off"
-        >
+<button id="send">
+SEND
+</button>
 
-        <button id="send">
-            SEND
-        </button>
-
-    </div>
+</div>
 
 </section>
 
 
 <section class="panel">
 
-    <div class="title">
-        QUICK COMMANDS
-    </div>
+<div class="title">
+QUICK COMMANDS
+</div>
 
-    <div class="quick">
+<div class="quick">
 
-        <button data-cmd="System status">
-            SYSTEM STATUS
-        </button>
+<button data-cmd="Wake up HIVAI">
+WAKE CORE
+</button>
 
-        <button data-cmd="Run a core diagnostic">
-            CORE DIAGNOSTIC
-        </button>
+<button data-cmd="System status">
+SYSTEM STATUS
+</button>
 
-        <button data-cmd="Summarize our current conversation">
-            MEMORY RECALL
-        </button>
+<button data-cmd="Run a core diagnostic">
+CORE DIAGNOSTIC
+</button>
 
-        <button data-cmd="Explain how your voice system works">
-            VOICE CALIBRATION
-        </button>
+<button data-cmd="Sleep mode">
+SLEEP CORE
+</button>
 
-    </div>
+</div>
 
 </section>
 
 
 <section class="panel grow">
 
-    <div class="title">
-        ACTIVITY // LIVE
-    </div>
+<div class="title">
+ACTIVITY // LIVE
+</div>
 
-    <div
-        class="log"
-        id="log"
-    >
+<div
+class="log"
+id="log"
+>
 
-        <div>
-            [BOOT]
-            <b>SYSTEM</b>
-            3D core online
-        </div>
+<div>
+[BOOT]
+<b>SYSTEM</b>
+3D core online
+</div>
 
-        <div>
-            [BOOT]
-            <b>SECURITY</b>
-            Client holds no AI key
-        </div>
+<div>
+[BOOT]
+<b>SECURITY</b>
+Client holds no AI key
+</div>
 
-        <div>
-            [BOOT]
-            <b>BRAIN</b>
-            Gateway check pending
-        </div>
+<div>
+[BOOT]
+<b>VOICE</b>
+Browser voice channel ready
+</div>
 
-    </div>
+<div>
+[BOOT]
+<b>CORE</b>
+Sleep mode initialized
+</div>
+
+</div>
 
 </section>
 
@@ -1051,539 +1048,460 @@ canvas{
 import * as THREE from "three";
 
 
-/* =========================================================
-   HIVAI CONFIG
-========================================================= */
+const $ =
+id => document.getElementById(id);
+
 
 const API_BASE =
-    (window.HIVAI_API_BASE || "")
-    .replace(/\/$/, "");
+(window.HIVAI_API_BASE || "")
+.replace(/\/$/,"");
 
 
 /* =========================================================
-   HELPERS
-========================================================= */
-
-const $ = id =>
-    document.getElementById(id);
-
-
-/* =========================================================
-   THREE.JS SCENE
+   THREE.JS
 ========================================================= */
 
 const scene =
-    new THREE.Scene();
+new THREE.Scene();
 
 scene.fog =
-    new THREE.FogExp2(
-        0x010509,
-        0.0028
-    );
+new THREE.FogExp2(
+0x010509,
+.0023
+);
 
 
 const camera =
-    new THREE.PerspectiveCamera(
-        45,
-        1,
-        0.1,
-        3000
-    );
+new THREE.PerspectiveCamera(
+42,
+1,
+.1,
+3000
+);
 
-camera.position.z =
-    620;
+camera.position.set(
+0,
+0,
+650
+);
 
 
 const renderer =
-    new THREE.WebGLRenderer({
-        antialias:true,
-        alpha:true,
-        powerPreference:
-            "high-performance"
-    });
+new THREE.WebGLRenderer({
+
+antialias:true,
+
+alpha:true,
+
+powerPreference:
+"high-performance"
+
+});
 
 
 renderer.setPixelRatio(
-    Math.min(
-        window.devicePixelRatio,
-        2
-    )
+Math.min(devicePixelRatio,2)
 );
 
 renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
+innerWidth,
+innerHeight
 );
 
 renderer.outputColorSpace =
-    THREE.SRGBColorSpace;
+THREE.SRGBColorSpace;
 
 
-$("scene").appendChild(
-    renderer.domElement
+$("scene")
+.appendChild(
+renderer.domElement
 );
 
 
 const root =
-    new THREE.Group();
+new THREE.Group();
 
 scene.add(root);
 
 
-/* =========================================================
-   COLORS
-========================================================= */
-
-const CYAN =
-    new THREE.Color("#00eaff");
-
-const ORANGE =
-    new THREE.Color("#ff8a00");
-
-
-/* =========================================================
-   GLOW SPRITE
-========================================================= */
-
-function glowSprite(
-    color,
-    size
-){
-
-    const canvas =
-        document.createElement("canvas");
-
-    canvas.width =
-    canvas.height =
-        128;
-
-    const ctx =
-        canvas.getContext("2d");
-
-    const gradient =
-        ctx.createRadialGradient(
-            64,
-            64,
-            0,
-            64,
-            64,
-            64
-        );
-
-    gradient.addColorStop(
-        0,
-        color
-    );
-
-    gradient.addColorStop(
-        .15,
-        color
-    );
-
-    gradient.addColorStop(
-        .4,
-        color + "88"
-    );
-
-    gradient.addColorStop(
-        1,
-        "transparent"
-    );
-
-    ctx.fillStyle =
-        gradient;
-
-    ctx.fillRect(
-        0,
-        0,
-        128,
-        128
-    );
-
-    const texture =
-        new THREE.CanvasTexture(
-            canvas
-        );
-
-    const material =
-        new THREE.SpriteMaterial({
-            map:texture,
-            transparent:true,
-            depthWrite:false,
-            blending:
-                THREE.AdditiveBlending
-        });
-
-    const sprite =
-        new THREE.Sprite(
-            material
-        );
-
-    sprite.scale.set(
-        size,
-        size,
-        1
-    );
-
-    return sprite;
-}
-
-
-/* =========================================================
-   CORE
-========================================================= */
-
 const core =
-    new THREE.Group();
+new THREE.Group();
 
 root.add(core);
 
 
-const coreGlow =
-    glowSprite(
-        "#00eaff",
-        190
-    );
+const CYAN =
+new THREE.Color("#00eaff");
+
+const ORANGE =
+new THREE.Color("#ff8a00");
+
+
+/* =========================================================
+   GLOW SPRITES
+========================================================= */
+
+function sprite(color,size){
+
+const canvas =
+document.createElement("canvas");
+
+canvas.width =
+canvas.height =
+128;
+
+const ctx =
+canvas.getContext("2d");
+
+const gradient =
+ctx.createRadialGradient(
+64,
+64,
+0,
+64,
+64,
+64
+);
+
+gradient.addColorStop(
+0,
+color
+);
+
+gradient.addColorStop(
+.18,
+color
+);
+
+gradient.addColorStop(
+.5,
+color+"55"
+);
+
+gradient.addColorStop(
+1,
+"transparent"
+);
+
+ctx.fillStyle =
+gradient;
+
+ctx.fillRect(
+0,
+0,
+128,
+128
+);
+
+const texture =
+new THREE.CanvasTexture(
+canvas
+);
+
+const material =
+new THREE.SpriteMaterial({
+
+map:texture,
+
+transparent:true,
+
+depthWrite:false,
+
+blending:
+THREE.AdditiveBlending
+
+});
+
+const sprite =
+new THREE.Sprite(material);
+
+sprite.scale.setScalar(
+size
+);
+
+return sprite;
+
+}
+
+
+/* =========================================================
+   CORE OBJECTS
+========================================================= */
+
+const glow =
+sprite(
+"#00eaff",
+170
+);
+
+const glow2 =
+sprite(
+"#ffffff",
+58
+);
 
 core.add(
-    coreGlow
+glow,
+glow2
 );
 
 
-const innerGlow =
-    glowSprite(
-        "#ffffff",
-        70
-    );
+const shell =
+new THREE.Mesh(
 
-core.add(
-    innerGlow
+new THREE.IcosahedronGeometry(
+42,
+4
+),
+
+new THREE.MeshBasicMaterial({
+
+color:CYAN,
+
+wireframe:true,
+
+transparent:true,
+
+opacity:.72,
+
+blending:
+THREE.AdditiveBlending
+
+})
+
 );
 
+core.add(shell);
 
-/* OUTER CORE */
-
-const coreGeometry =
-    new THREE.IcosahedronGeometry(
-        42,
-        4
-    );
-
-const coreMaterial =
-    new THREE.MeshBasicMaterial({
-        color:CYAN,
-        wireframe:true,
-        transparent:true,
-        opacity:.75,
-        blending:
-            THREE.AdditiveBlending
-    });
-
-const coreMesh =
-    new THREE.Mesh(
-        coreGeometry,
-        coreMaterial
-    );
-
-core.add(
-    coreMesh
-);
-
-
-/* INNER CORE */
-
-const innerGeometry =
-    new THREE.IcosahedronGeometry(
-        25,
-        2
-    );
-
-const innerMaterial =
-    new THREE.MeshBasicMaterial({
-        color:0x082b35,
-        wireframe:true,
-        transparent:true,
-        opacity:.95
-    });
 
 const inner =
-    new THREE.Mesh(
-        innerGeometry,
-        innerMaterial
-    );
+new THREE.Mesh(
 
-core.add(
-    inner
+new THREE.IcosahedronGeometry(
+24,
+2
+),
+
+new THREE.MeshBasicMaterial({
+
+color:0x062a34,
+
+wireframe:true,
+
+transparent:true,
+
+opacity:.95
+
+})
+
 );
+
+core.add(inner);
+
+
+const nucleus =
+new THREE.Mesh(
+
+new THREE.SphereGeometry(
+11,
+24,
+24
+),
+
+new THREE.MeshBasicMaterial({
+
+color:0xffffff,
+
+transparent:true,
+
+opacity:.95
+
+})
+
+);
+
+core.add(nucleus);
 
 
 /* =========================================================
    ORBITAL RINGS
 ========================================================= */
 
-function createRing(
-    radius,
-    tube,
-    color,
-    opacity
+function ring(
+radius,
+thickness,
+color,
+opacity
 ){
 
-    const geometry =
-        new THREE.TorusGeometry(
-            radius,
-            tube,
-            10,
-            180
-        );
+const mesh =
+new THREE.Mesh(
 
-    const material =
-        new THREE.MeshBasicMaterial({
-            color,
-            transparent:true,
-            opacity,
-            blending:
-                THREE.AdditiveBlending
-        });
+new THREE.TorusGeometry(
+radius,
+thickness,
+10,
+220
+),
 
-    const mesh =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
+new THREE.MeshBasicMaterial({
 
-    root.add(
-        mesh
-    );
+color,
 
-    return mesh;
+transparent:true,
+
+opacity,
+
+blending:
+THREE.AdditiveBlending
+
+})
+
+);
+
+root.add(mesh);
+
+return mesh;
+
 }
 
 
 const rings = [
 
-    createRing(
-        72,
-        1,
-        CYAN,
-        .65
-    ),
+ring(62,1.1,CYAN,.65),
 
-    createRing(
-        108,
-        1,
-        CYAN,
-        .48
-    ),
+ring(91,.8,CYAN,.48),
 
-    createRing(
-        148,
-        1,
-        ORANGE,
-        .55
-    ),
+ring(126,1,ORANGE,.62),
 
-    createRing(
-        190,
-        .7,
-        CYAN,
-        .35
-    ),
+ring(165,.75,CYAN,.38),
 
-    createRing(
-        235,
-        .55,
-        ORANGE,
-        .25
-    )
+ring(208,.55,ORANGE,.28),
+
+ring(255,.42,CYAN,.20)
 
 ];
 
 
-rings[1].rotation.x =
-    .8;
-
-rings[2].rotation.x =
-    1.2;
-
-rings[3].rotation.y =
-    .9;
-
-rings[4].rotation.z =
-    .7;
+rings[1].rotation.x=.9;
+rings[2].rotation.x=1.25;
+rings[3].rotation.y=.8;
+rings[4].rotation.z=.7;
+rings[5].rotation.x=1.7;
 
 
 /* =========================================================
-   ORBITING ENERGY NODES
+   PARTICLES
 ========================================================= */
 
-const orbiters = [];
-
-
-for(
-    let i=0;
-    i<12;
-    i++
-){
-
-    const sprite =
-        glowSprite(
-            i%3===0
-            ? "#ff8a00"
-            : "#00eaff",
-            12
-        );
-
-    root.add(
-        sprite
-    );
-
-    orbiters.push({
-
-        sprite,
-
-        radius:
-            90 +
-            Math.random()*150,
-
-        angle:
-            Math.random() *
-            Math.PI *
-            2,
-
-        speed:
-            .15 +
-            Math.random()*.35,
-
-        y:
-            (Math.random()-.5)*90
-
-    });
-
-}
-
-
-/* =========================================================
-   PARTICLE CLOUD
-========================================================= */
-
-const PARTICLES =
-    4200;
+const particlesN =
+5000;
 
 const positions =
-    new Float32Array(
-        PARTICLES * 3
-    );
+new Float32Array(
+particlesN*3
+);
 
 const colors =
-    new Float32Array(
-        PARTICLES * 3
-    );
+new Float32Array(
+particlesN*3
+);
 
 
 for(
-    let i=0;
-    i<PARTICLES;
-    i++
+let i=0;
+i<particlesN;
+i++
 ){
 
-    const radius =
-        90 +
-        Math.pow(
-            Math.random(),
-            .55
-        ) * 280;
+const radius =
+75 +
+Math.pow(
+Math.random(),
+.48
+)*330;
 
-    const angle =
-        Math.random() *
-        Math.PI *
-        2;
+const angle =
+Math.random()*Math.PI*2;
 
-    const z =
-        (Math.random()-.5) *
-        230;
+const z =
+(Math.random()-.5)*250;
 
+positions[i*3] =
+Math.cos(angle)*radius;
 
-    positions[i*3] =
-        Math.cos(angle) *
-        radius;
+positions[i*3+1] =
+Math.sin(angle)*radius*.58;
 
-    positions[i*3+1] =
-        Math.sin(angle) *
-        radius *
-        .62;
-
-    positions[i*3+2] =
-        z;
+positions[i*3+2] =
+z;
 
 
-    const color =
-        Math.random() < .72
-        ? CYAN
-        : ORANGE;
+const color =
+Math.random()<.68
+?
+CYAN
+:
+ORANGE;
 
+colors.set(
+[
+color.r,
+color.g,
+color.b
+],
+i*3
+);
 
-    colors[i*3] =
-        color.r;
-
-    colors[i*3+1] =
-        color.g;
-
-    colors[i*3+2] =
-        color.b;
 }
 
 
 const particleGeometry =
-    new THREE.BufferGeometry();
-
+new THREE.BufferGeometry();
 
 particleGeometry.setAttribute(
-    "position",
-    new THREE.BufferAttribute(
-        positions,
-        3
-    )
+"position",
+new THREE.BufferAttribute(
+positions,
+3
+)
 );
 
-
 particleGeometry.setAttribute(
-    "color",
-    new THREE.BufferAttribute(
-        colors,
-        3
-    )
+"color",
+new THREE.BufferAttribute(
+colors,
+3
+)
 );
 
 
 const particleMaterial =
-    new THREE.PointsMaterial({
+new THREE.PointsMaterial({
 
-        size:2.1,
+size:2.15,
 
-        vertexColors:true,
+vertexColors:true,
 
-        transparent:true,
+transparent:true,
 
-        opacity:.75,
+opacity:.7,
 
-        blending:
-            THREE.AdditiveBlending,
+blending:
+THREE.AdditiveBlending,
 
-        depthWrite:false
+depthWrite:false
 
-    });
-
-
-const particles =
-    new THREE.Points(
-        particleGeometry,
-        particleMaterial
-    );
+});
 
 
-root.add(
-    particles
+const points =
+new THREE.Points(
+particleGeometry,
+particleMaterial
 );
+
+root.add(points);
 
 
 /* =========================================================
@@ -1591,84 +1509,126 @@ root.add(
 ========================================================= */
 
 const rays =
-    new THREE.Group();
+new THREE.Group();
 
-root.add(
-    rays
-);
+root.add(rays);
 
 
 for(
-    let i=0;
-    i<32;
-    i++
+let i=0;
+i<44;
+i++
 ){
 
-    const angle =
-        i /
-        32 *
-        Math.PI *
-        2;
+const angle =
+i/44*Math.PI*2;
 
-    const length =
-        190 +
-        Math.random()*140;
+const length =
+190 +
+Math.random()*180;
 
+const end =
+new THREE.Vector3(
 
-    const end =
-        new THREE.Vector3(
+Math.cos(angle)*length,
 
-            Math.cos(angle) *
-            length,
+Math.sin(angle)*length*.68,
 
-            Math.sin(angle) *
-            length *
-            .7,
+(Math.random()-.5)*100
 
-            Math.random()*80-40
-
-        );
+);
 
 
-    const geometry =
-        new THREE.BufferGeometry()
-        .setFromPoints([
+const geometry =
+new THREE.BufferGeometry()
+.setFromPoints([
 
-            new THREE.Vector3(
-                0,
-                0,
-                0
-            ),
+new THREE.Vector3(),
 
-            end
+end
 
-        ]);
+]);
 
 
-    const material =
-        new THREE.LineBasicMaterial({
+const material =
+new THREE.LineBasicMaterial({
 
-            color:
-                i%3===0
-                ? ORANGE
-                : CYAN,
+color:
+i%3
+?
+CYAN
+:
+ORANGE,
 
-            transparent:true,
+transparent:true,
 
-            opacity:.18,
+opacity:.13,
 
-            blending:
-                THREE.AdditiveBlending
+blending:
+THREE.AdditiveBlending
 
-        });
+});
 
 
-    rays.add(
-        new THREE.Line(
-            geometry,
-            material
-        )
-    );
+rays.add(
+new THREE.Line(
+geometry,
+material
+)
+);
+
+}
+
+
+/* =========================================================
+   ENERGY NODES
+========================================================= */
+
+const nodes=[];
+
+
+for(
+let i=0;
+i<28;
+i++
+){
+
+const s =
+sprite(
+
+i%4===0
+?
+"#ff8a00"
+:
+"#00eaff",
+
+6 +
+Math.random()*6
+
+);
+
+root.add(s);
+
+
+nodes.push({
+
+s,
+
+r:
+80+
+Math.random()*270,
+
+a:
+Math.random()*Math.PI*2,
+
+y:
+(Math.random()-.5)*130,
+
+v:
+.25+
+Math.random()*.65
+
+});
 
 }
 
@@ -1677,271 +1637,1521 @@ for(
    STATE
 ========================================================= */
 
-let currentState =
-    "idle";
+let state =
+"idle";
 
 let audioLevel =
-    0;
+0;
+
+let awake =
+false;
 
 
-function setState(
-    state
-){
+function setState(next){
 
-    currentState =
-        state;
+state =
+next;
 
-
-    const states = {
-
-        idle:[
-            "SLEEP",
-            "SLEEPING // AWAITING COMMAND",
-            CYAN
-        ],
-
-        listen:[
-            "LISTENING",
-            "LISTENING // VOICE LINK ACTIVE",
-            ORANGE
-        ],
-
-        think:[
-            "THINKING",
-            "THINKING // PROCESSING",
-            ORANGE
-        ],
-
-        speak:[
-            "SPEAKING",
-            "SPEAKING // RESPONSE ACTIVE",
-            CYAN
-        ]
-
-    };
+awake =
+next !== "idle";
 
 
-    const data =
-        states[state];
+const data = {
+
+idle:[
+"SLEEP",
+"SLEEPING // AWAITING COMMAND",
+CYAN
+],
+
+wake:[
+"AWAKE",
+"CORE AWAKE // AWAITING COMMAND",
+ORANGE
+],
+
+listen:[
+"LISTENING",
+"LISTENING // VOICE LINK ACTIVE",
+ORANGE
+],
+
+think:[
+"THINKING",
+"THINKING // PROCESSING",
+ORANGE
+],
+
+speak:[
+"SPEAKING",
+"SPEAKING // RESPONSE ACTIVE",
+CYAN
+]
+
+}[next];
 
 
-    $("mode").textContent =
-        data[0];
-
-    $("state").textContent =
-        data[1];
+if(!data)
+return;
 
 
-    [
-        "idle",
-        "listen",
-        "think",
-        "speak"
-    ].forEach(
-        name => {
+$("mode").textContent =
+data[0];
 
-            $(name).className =
-                name===state
-                ? "active"
-                : "";
+$("state").textContent =
+data[1];
 
-        }
-    );
+$("status").textContent =
+data[0];
+
+$("coreStatus").textContent =
+data[0];
 
 
-    $("brainStatus").textContent =
-        state==="idle"
-        ? "STANDBY"
-        : state.toUpperCase();
+$("brainStatus").textContent =
+next==="idle"
+?
+"STANDBY"
+:
+next.toUpperCase();
 
 
-    coreMaterial.color.copy(
-        data[2]
-    );
+[
+"idle",
+"wakeState",
+"listen",
+"think",
+"speak"
+]
+.forEach(
+id =>
+$(id)
+.classList.remove("active")
+);
+
+
+$(
+
+next==="wake"
+?
+"wakeState"
+:
+next
+
+)
+.classList.add("active");
+
+
+shell.material.color.copy(
+data[2]
+);
+
+glow.material.opacity =
+next==="idle"
+?
+.48
+:
+next==="listen"
+?
+.9
+:
+.72;
+
+glow.material.color.set(
+data[2]
+);
 
 }
+
+
+/* =========================================================
+   ENERGY
+========================================================= */
+
+function energy(){
+
+const target =
+
+state==="idle"
+?
+18
+:
+state==="wake"
+?
+72
+:
+state==="listen"
+?
+90
+:
+state==="think"
+?
+84
+:
+68;
+
+
+const value =
+Math.round(
+target+
+audioLevel*10
+);
+
+
+$("energy").textContent =
+value+"%";
+
+$("energyBar").style.width =
+value+"%";
+
+$("load").textContent =
+Math.round(
+Math.min(
+99,
+target*.9+
+audioLevel*30
+)
+)+"%";
+
+}
+
+
+/* =========================================================
+   UI LOGGING
+========================================================= */
+
+function safe(value){
+
+return String(value)
+.replace(
+/[&<>]/g,
+c =>
+({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;"
+}[c])
+);
+
+}
+
+
+function addLog(
+type,
+message
+){
+
+const element =
+document.createElement(
+"div"
+);
+
+element.innerHTML =
+
+"["+
+new Date()
+.toLocaleTimeString(
+[],
+{hour12:false}
+)+"] <b>"+
+safe(type)+
+"</b> "+
+safe(message);
+
+
+$("log")
+.prepend(element);
+
+
+while(
+$("log").children.length>16
+){
+
+$("log")
+.lastChild
+.remove();
+
+}
+
+}
+
+
+function addMessage(
+who,
+text
+){
+
+const element =
+document.createElement(
+"div"
+);
+
+element.innerHTML =
+"<b>"+
+safe(who)+
+":</b> "+
+safe(text);
+
+
+$("messages")
+.appendChild(
+element
+);
+
+$("messages")
+.scrollTop =
+$("messages")
+.scrollHeight;
+
+}
+
+
+/* =========================================================
+   AUDIO ENGINE
+========================================================= */
+
+let audioCtx;
+
+
+function unlockAudio(){
+
+if(!audioCtx){
+
+audioCtx =
+new (
+window.AudioContext ||
+window.webkitAudioContext
+)();
+
+}
+
+if(
+audioCtx.state ===
+"suspended"
+){
+
+audioCtx.resume();
+
+}
+
+}
+
+
+function tone(
+frequency,
+duration,
+type="sine",
+gain=.035,
+delay=0
+){
+
+if(!audioCtx)
+return;
+
+
+const now =
+audioCtx.currentTime+
+delay;
+
+
+const oscillator =
+audioCtx.createOscillator();
+
+const gainNode =
+audioCtx.createGain();
+
+
+oscillator.type =
+type;
+
+oscillator.frequency.setValueAtTime(
+frequency,
+now
+);
+
+
+gainNode.gain.setValueAtTime(
+0,
+now
+);
+
+gainNode.gain.linearRampToValueAtTime(
+gain,
+now+.012
+);
+
+gainNode.gain.exponentialRampToValueAtTime(
+.0001,
+now+duration
+);
+
+
+oscillator
+.connect(gainNode)
+.connect(audioCtx.destination);
+
+
+oscillator.start(now);
+
+oscillator.stop(
+now+
+duration+
+.03
+);
+
+}
+
+
+function bootSound(){
+
+unlockAudio();
+
+tone(
+220,
+.18,
+"sine",
+.035
+);
+
+tone(
+330,
+.18,
+"sine",
+.035,
+.11
+);
+
+tone(
+494,
+.3,
+"sine",
+.045,
+.22
+);
+
+}
+
+
+function wakeSound(){
+
+unlockAudio();
+
+tone(
+180,
+.16,
+"sine",
+.03
+);
+
+tone(
+320,
+.2,
+"triangle",
+.045,
+.09
+);
+
+tone(
+640,
+.4,
+"sine",
+.035,
+.2
+);
+
+}
+
+
+function listenSound(){
+
+unlockAudio();
+
+tone(
+520,
+.12,
+"triangle",
+.028
+);
+
+tone(
+760,
+.2,
+"sine",
+.022,
+.08
+);
+
+}
+
+
+function thinkSound(){
+
+unlockAudio();
+
+tone(
+260,
+.12,
+"square",
+.012
+);
+
+tone(
+390,
+.12,
+"square",
+.012,
+.12
+);
+
+}
+
+
+function sleepSound(){
+
+unlockAudio();
+
+tone(
+420,
+.2,
+"sine",
+.025
+);
+
+tone(
+220,
+.35,
+"sine",
+.018,
+.15
+);
+
+}
+
+
+/* =========================================================
+   CORE COMMANDS
+========================================================= */
+
+function wakeCore(){
+
+setState("wake");
+
+wakeSound();
+
+addLog(
+"CORE",
+"Wake sequence complete // energy nexus expanded"
+);
+
+$("vs").textContent =
+"VOICE LINK // READY";
+
+}
+
+
+function sleepCore(){
+
+setState("idle");
+
+sleepSound();
+
+addLog(
+"CORE",
+"Sleep sequence complete // low-energy cyan core"
+);
+
+}
+
+
+function command(text){
+
+const value =
+text.toLowerCase();
+
+
+if(
+/^(wake|wake up|activate|activate core|hivai wake)/
+.test(value)
+){
+
+wakeCore();
+
+addMessage(
+"HIVAI",
+"Core awake, Sir. All primary systems online."
+);
+
+speak(
+"Core awake, Sir. All primary systems online."
+);
+
+return true;
+
+}
+
+
+if(
+/^(sleep|sleep mode|go to sleep|standby)/
+.test(value)
+){
+
+sleepCore();
+
+addMessage(
+"HIVAI",
+"Entering sleep mode."
+);
+
+return true;
+
+}
+
+
+return false;
+
+}
+
+
+/* =========================================================
+   AI CHAT
+========================================================= */
+
+async function ask(text){
+
+if(!text)
+return;
+
+
+addMessage(
+"YOU",
+text
+);
+
+
+if(
+command(text)
+)
+return;
+
+
+if(
+state==="idle"
+)
+wakeCore();
+
+
+setState("think");
+
+thinkSound();
+
+$("gateway").textContent =
+"PROCESSING";
+
+
+addLog(
+"BRAIN",
+"Secure request transmitted"
+);
+
+
+const started =
+performance.now();
+
+
+try{
+
+const response =
+await fetch(
+API_BASE+
+"/api/chat",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify({
+
+message:text,
+
+session_id:"web"
+
+})
+
+}
+);
+
+
+const data =
+await response
+.json()
+.catch(
+()=>({})
+);
+
+
+if(
+!response.ok ||
+data.ok===false
+){
+
+throw new Error(
+data.error ||
+"HTTP "+
+response.status
+);
+
+}
+
+
+$("gateway").textContent =
+"ONLINE";
+
+
+$("latency").textContent =
+Math.round(
+performance.now()-
+started
+)+
+" MS";
+
+
+const reply =
+data.reply ||
+data.response ||
+"No response returned.";
+
+
+addMessage(
+"HIVAI",
+reply
+);
+
+
+addLog(
+"CORE",
+"Response received"
+);
+
+
+setState(
+"speak"
+);
+
+
+speak(
+reply
+);
+
+
+setTimeout(
+()=>{
+
+if(
+state==="speak"
+)
+setState("wake");
+
+},
+1200
+);
+
+
+}catch(error){
+
+console.error(error);
+
+
+$("gateway").textContent =
+"OFFLINE";
+
+
+addMessage(
+"HIVAI",
+"Gateway unavailable. Check the backend connection."
+);
+
+
+addLog(
+"ERROR",
+error.message ||
+"Backend unavailable"
+);
+
+
+setState(
+"wake"
+);
+
+}
+
+}
+
+
+/* =========================================================
+   SPEECH OUTPUT
+========================================================= */
+
+function speak(text){
+
+if(
+!text ||
+!("speechSynthesis" in window)
+)
+return;
+
+
+speechSynthesis.cancel();
+
+unlockAudio();
+
+tone(
+620,
+.08,
+"sine",
+.018
+);
+
+
+const utterance =
+new SpeechSynthesisUtterance(
+text
+);
+
+
+utterance.rate =
+.94;
+
+utterance.pitch =
+.82;
+
+
+utterance.onstart =
+()=>{
+setState("speak");
+};
+
+
+utterance.onend =
+()=>{
+
+if(
+state==="speak"
+)
+setState("wake");
+
+};
+
+
+speechSynthesis.speak(
+utterance
+);
+
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+$("wakeBtn").onclick =
+()=>{
+
+unlockAudio();
+
+wakeCore();
+
+};
+
+
+$("send").onclick =
+()=>{
+
+const text =
+$("input")
+.value
+.trim();
+
+$("input").value =
+"";
+
+ask(text);
+
+};
+
+
+$("input")
+.addEventListener(
+"keydown",
+event=>{
+
+if(
+event.key==="Enter"
+)
+$("send").click();
+
+}
+);
+
+
+document
+.querySelectorAll(
+".quick button"
+)
+.forEach(
+button=>{
+
+button.onclick =
+()=>ask(
+button.dataset.cmd
+);
+
+}
+);
+
+
+/* =========================================================
+   SPEECH RECOGNITION
+========================================================= */
+
+const Recognition =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+
+let recognition;
+
+
+if(Recognition){
+
+recognition =
+new Recognition();
+
+recognition.lang =
+"en-IN";
+
+recognition.interimResults =
+true;
+
+recognition.continuous =
+false;
+
+
+recognition.onstart =
+()=>{
+
+unlockAudio();
+
+
+if(
+state==="idle"
+)
+wakeCore();
+
+
+setState(
+"listen"
+);
+
+
+listenSound();
+
+
+$("mic")
+.classList.add(
+"active"
+);
+
+
+$("vs").textContent =
+"LISTENING // SPEAK NOW";
+
+
+addLog(
+"VOICE",
+"Microphone channel active"
+);
+
+};
+
+
+recognition.onresult =
+event=>{
+
+let text="";
+
+
+for(
+const result
+of event.results
+){
+
+text +=
+result[0]
+.transcript;
+
+}
+
+
+if(
+event.results[
+event.results.length-1
+]
+.isFinal
+){
+
+$("vs").textContent =
+"INPUT CAPTURED";
+
+
+addLog(
+"USER",
+text
+);
+
+
+ask(text);
+
+}
+
+};
+
+
+recognition.onerror =
+event=>{
+
+console.warn(
+event
+);
+
+$("vs").textContent =
+"VOICE LINK // ERROR";
+
+
+setState(
+awake
+?
+"wake"
+:
+"idle"
+);
+
+};
+
+
+recognition.onend =
+()=>{
+
+$("mic")
+.classList.remove(
+"active"
+);
+
+
+if(
+state==="listen"
+)
+setState(
+"wake"
+);
+
+
+$("vs").textContent =
+"VOICE LINK // READY";
+
+
+audioLevel=0;
+
+};
+
+
+$("mic").onclick =
+()=>{
+
+unlockAudio();
+
+
+try{
+
+recognition.start();
+
+}catch(_){
+
+try{
+
+recognition.stop();
+
+}catch(__){}
+
+}
+
+};
+
+}else{
+
+$("vs").textContent =
+"VOICE // USE CHROME OR EDGE";
+
+}
+
+
+/* =========================================================
+   MICROPHONE VISUALIZER
+========================================================= */
+
+let analyser;
+
+let micSource;
+
+let micStream;
+
+
+async function setupMicMeter(){
+
+if(analyser)
+return;
+
+
+try{
+
+micStream =
+await navigator.mediaDevices
+.getUserMedia({
+audio:true
+});
+
+
+unlockAudio();
+
+
+analyser =
+audioCtx.createAnalyser();
+
+
+analyser.fftSize =
+256;
+
+
+micSource =
+audioCtx
+.createMediaStreamSource(
+micStream
+);
+
+
+micSource.connect(
+analyser
+);
+
+
+const data =
+new Uint8Array(
+analyser.frequencyBinCount
+);
+
+
+(function meter(){
+
+requestAnimationFrame(
+meter
+);
+
+
+if(!analyser)
+return;
+
+
+analyser.getByteFrequencyData(
+data
+);
+
+
+let total=0;
+
+
+for(
+const value
+of data
+){
+
+total+=value;
+
+}
+
+
+audioLevel =
+Math.min(
+1,
+total/
+data.length/
+105
+);
+
+})();
+
+
+}catch(error){
+
+console.warn(
+"Microphone visualizer unavailable",
+error
+);
+
+}
+
+}
+
+
+$("mic")
+.addEventListener(
+"click",
+setupMicMeter
+);
 
 
 /* =========================================================
    ANIMATION LOOP
 ========================================================= */
 
-function animate(
-    time
-){
+function animate(ms){
 
-    requestAnimationFrame(
-        animate
-    );
+requestAnimationFrame(
+animate
+);
 
 
-    const t =
-        time * .001;
+const time =
+ms*.001;
 
 
-    let speed =
-        1;
+const stateSpeed = {
+
+idle:.18,
+
+wake:.7,
+
+listen:2.7,
+
+think:1.8,
+
+speak:1.25
+
+}[state] || .5;
 
 
-    if(
-        currentState ===
-        "listen"
-    ){
+const base = {
 
-        speed =
-            3.0;
+idle:.34,
 
-    }
-    else if(
-        currentState ===
-        "think"
-    ){
+wake:1,
 
-        speed =
-            2.3;
+listen:1.18,
 
-    }
-    else if(
-        currentState ===
-        "speak"
-    ){
+think:1.05,
 
-        speed =
-            1.8;
+speak:1.08
 
-    }
+}[state] || 1;
 
 
-    const pulse =
-        1 +
-        Math.sin(
-            t*3.2
-        ) *
-        .025 *
-        speed +
-        audioLevel *
-        .14;
+const targetScale =
+state==="idle"
+?
+.48
+:
+base;
 
 
-    core.scale.setScalar(
-        pulse
-    );
+const pulse =
+targetScale*
+(
+1+
+Math.sin(
+time*3.2
+)*
+(
+.025+
+audioLevel*.08
+)+
+audioLevel*.16
+);
 
 
-    coreMesh.rotation.x =
-        t*.28*speed;
-
-    coreMesh.rotation.y =
-        t*.43*speed;
-
-
-    inner.rotation.y =
-        -t*.8*speed;
+const target =
+new THREE.Vector3(
+pulse,
+pulse,
+pulse
+);
 
 
-    coreGlow.scale.setScalar(
-        190*pulse
-    );
+core.scale.lerp(
+target,
+.09
+);
 
 
-    rings.forEach(
-        (ring,index)=>{
+core.rotation.y +=
+.0025*
+stateSpeed;
 
-            ring.rotation.z +=
-                (
-                    index%2
-                    ? .0018
-                    : -.0012
-                ) * speed;
-
-            ring.rotation.x +=
-                (
-                    index%2
-                    ? .0009
-                    : -.0005
-                ) * speed;
-
-        }
-    );
+core.rotation.x +=
+.0015*
+stateSpeed;
 
 
-    particles.rotation.z =
-        t*.018*speed;
+shell.rotation.y +=
+.008*
+stateSpeed;
 
-    particles.rotation.y =
-        t*.008*speed;
-
-
-    rays.rotation.z =
-        -t*.025*speed;
+shell.rotation.z -=
+.004*
+stateSpeed;
 
 
-    orbiters.forEach(
-        node => {
-
-            node.angle +=
-                .008 *
-                node.speed *
-                speed;
+inner.rotation.y -=
+.014*
+stateSpeed;
 
 
-            node.sprite.position.set(
+nucleus.scale.setScalar(
 
-                Math.cos(
-                    node.angle
-                ) *
-                node.radius,
+1+
+audioLevel*.75+
+Math.sin(time*5)*.05
 
-                Math.sin(
-                    node.angle
-                ) *
-                node.radius *
-                .62,
-
-                node.y +
-                Math.sin(
-                    t*2 +
-                    node.radius
-                ) *
-                18
-
-            );
+);
 
 
-            const size =
-                currentState==="listen"
-                ? 20 + audioLevel*25
-                : 10;
+glow.scale.setScalar(
+
+(
+state==="idle"
+?
+115
+:
+175
+)
+*
+pulse
+*
+(
+1+
+audioLevel*.2
+)
+
+);
 
 
-            node.sprite.scale.setScalar(
-                size
-            );
+glow2.scale.setScalar(
 
-        }
-    );
+(
+state==="idle"
+?
+28
+:
+62
+)
+*
+pulse
+*
+(
+1+
+audioLevel*.5
+)
+
+);
 
 
-    particleMaterial.size =
-        currentState==="listen"
-        ? 3
-        : 2.1;
+rings.forEach(
+(r,index)=>{
+
+r.rotation.z +=
+(
+index%2
+?
+.0018
+:
+-.0012
+)
+*
+stateSpeed;
+
+r.rotation.x +=
+(
+index%2
+?
+.0008
+:
+-.0005
+)
+*
+stateSpeed;
 
 
-    particleMaterial.opacity =
-        .52 +
-        audioLevel*.35;
+r.scale.setScalar(
+
+state==="idle"
+?
+.72
+:
+1+
+audioLevel*.08
+
+);
+
+}
+);
 
 
-    renderer.render(
-        scene,
-        camera
-    );
+points.rotation.z =
+time*
+.018*
+stateSpeed;
+
+points.rotation.y =
+time*
+.009*
+stateSpeed;
+
+
+particleMaterial.size =
+
+state==="idle"
+?
+1.25
+:
+2.1+
+audioLevel*2.2;
+
+
+particleMaterial.opacity =
+
+state==="idle"
+?
+.28
+:
+.5+
+audioLevel*.38;
+
+
+rays.rotation.z =
+-time*
+.025*
+stateSpeed;
+
+
+rays.scale.setScalar(
+
+state==="idle"
+?
+.7
+:
+1+
+audioLevel*.12
+
+);
+
+
+rays.children.forEach(
+(line,index)=>{
+
+line.material.opacity =
+
+(
+state==="idle"
+?
+.05
+:
+.1
+)+
+
+(
+index%5===0
+?
+audioLevel*.3
+:
+audioLevel*.08
+);
+
+}
+);
+
+
+nodes.forEach(
+node=>{
+
+node.a +=
+.004*
+node.v*
+stateSpeed;
+
+
+const radius =
+
+node.r*
+(
+state==="idle"
+?
+.62
+:
+1+
+audioLevel*.12
+);
+
+
+node.s.position.set(
+
+Math.cos(node.a)*
+radius,
+
+Math.sin(node.a)*
+radius*
+.58,
+
+node.y+
+Math.sin(
+time*2+
+node.r
+)*
+18
+
+);
+
+
+node.s.scale.setScalar(
+
+state==="idle"
+?
+2.5
+:
+7+
+audioLevel*22
+
+);
+
+}
+);
+
+
+energy();
+
+
+renderer.render(
+scene,
+camera
+);
 
 }
 
 
-animate(0);
+requestAnimationFrame(
+animate
+);
 
 
 /* =========================================================
@@ -1950,22 +3160,23 @@ animate(0);
 
 function resize(){
 
-    camera.aspect =
-        window.innerWidth /
-        window.innerHeight;
+camera.aspect =
+innerWidth/
+innerHeight;
 
-    camera.updateProjectionMatrix();
+camera.updateProjectionMatrix();
 
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
+renderer.setSize(
+innerWidth,
+innerHeight
+);
 
 }
 
-window.addEventListener(
-    "resize",
-    resize
+
+addEventListener(
+"resize",
+resize
 );
 
 
@@ -1975,740 +3186,105 @@ window.addEventListener(
 
 function updateClock(){
 
-    $("clock").textContent =
-        new Date().toLocaleTimeString(
-            [],
-            {
-                hour12:false
-            }
-        );
+$("clock").textContent =
+new Date()
+.toLocaleTimeString(
+[],
+{
+hour12:false
+}
+);
 
 }
+
 
 updateClock();
 
 setInterval(
-    updateClock,
-    1000
+updateClock,
+1000
 );
 
 
 /* =========================================================
-   LOG
-========================================================= */
-
-function safe(
-    value
-){
-
-    return String(
-        value
-    ).replace(
-        /[&<>]/g,
-        char => ({
-
-            "&":"&amp;",
-            "<":"&lt;",
-            ">":"&gt;"
-
-        }[char])
-    );
-
-}
-
-
-function addLog(
-    type,
-    message
-){
-
-    const element =
-        document.createElement(
-            "div"
-        );
-
-
-    element.innerHTML =
-        "[" +
-        new Date().toLocaleTimeString(
-            [],
-            {
-                hour12:false
-            }
-        ) +
-        "] <b>" +
-        safe(type) +
-        "</b> " +
-        safe(message);
-
-
-    $("log")
-        .prepend(
-            element
-        );
-
-
-    while(
-        $("log").children.length >
-        14
-    ){
-
-        $("log")
-            .lastChild
-            .remove();
-
-    }
-
-}
-
-
-/* =========================================================
-   CHAT
-========================================================= */
-
-function addMessage(
-    who,
-    text
-){
-
-    const element =
-        document.createElement(
-            "div"
-        );
-
-
-    element.innerHTML =
-        "<b>" +
-        safe(who) +
-        ":</b> " +
-        safe(text);
-
-
-    $("messages")
-        .appendChild(
-            element
-        );
-
-
-    $("messages")
-        .scrollTop =
-        $("messages")
-        .scrollHeight;
-
-}
-
-
-/* =========================================================
-   AI REQUEST
-========================================================= */
-
-async function ask(
-    text
-){
-
-    if(!text)
-        return;
-
-
-    addMessage(
-        "YOU",
-        text
-    );
-
-
-    setState(
-        "think"
-    );
-
-
-    $("gateway").textContent =
-        "PROCESSING";
-
-
-    addLog(
-        "BRAIN",
-        "Secure request transmitted"
-    );
-
-
-    try{
-
-        const response =
-            await fetch(
-                API_BASE +
-                "/api/chat",
-                {
-
-                    method:"POST",
-
-                    headers:{
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            message:text,
-
-                            session_id:
-                                "local"
-
-                        })
-
-                }
-            );
-
-
-        if(
-            !response.ok
-        ){
-
-            throw new Error(
-                "HTTP " +
-                response.status
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        $("gateway").textContent =
-            "ONLINE";
-
-
-        $("brainStatus").textContent =
-            "ACTIVE";
-
-
-        const reply =
-            data.reply ||
-            data.response ||
-            "No response returned.";
-
-
-        addMessage(
-            "HIVAI",
-            reply
-        );
-
-
-        addLog(
-            "CORE",
-            "Response received"
-        );
-
-
-        setState(
-            "speak"
-        );
-
-
-        speak(
-            reply
-        );
-
-
-        setTimeout(
-            ()=>{
-                setState(
-                    "idle"
-                );
-            },
-            1500
-        );
-
-
-    }
-    catch(error){
-
-        console.error(
-            error
-        );
-
-
-        $("gateway").textContent =
-            "OFFLINE";
-
-
-        addMessage(
-            "HIVAI",
-            "Gateway unavailable. Check the backend connection."
-        );
-
-
-        addLog(
-            "ERROR",
-            "Backend unavailable"
-        );
-
-
-        setState(
-            "idle"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   SEND
-========================================================= */
-
-$("send").onclick =
-    ()=>{
-
-        const text =
-            $("input")
-            .value
-            .trim();
-
-
-        $("input").value =
-            "";
-
-
-        ask(
-            text
-        );
-
-    };
-
-
-$("input").addEventListener(
-    "keydown",
-    event => {
-
-        if(
-            event.key ===
-            "Enter"
-        ){
-
-            $("send").click();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   QUICK COMMANDS
-========================================================= */
-
-document
-.querySelectorAll(
-    ".quick button"
-)
-.forEach(
-    button => {
-
-        button.onclick =
-            ()=>{
-                ask(
-                    button.dataset.cmd
-                );
-            };
-
-    }
-);
-
-
-/* =========================================================
-   TEXT TO SPEECH
-========================================================= */
-
-function speak(
-    text
-){
-
-    if(
-        !("speechSynthesis"
-            in window)
-    )
-        return;
-
-
-    if(!text)
-        return;
-
-
-    speechSynthesis.cancel();
-
-
-    const utterance =
-        new SpeechSynthesisUtterance(
-            text
-        );
-
-
-    utterance.rate =
-        .95;
-
-    utterance.pitch =
-        .88;
-
-
-    utterance.onstart =
-        ()=>{
-            setState(
-                "speak"
-            );
-        };
-
-
-    speechSynthesis.speak(
-        utterance
-    );
-
-}
-
-
-/* =========================================================
-   VOICE RECOGNITION
-========================================================= */
-
-const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-
-let recognition;
-
-
-if(
-    SpeechRecognition
-){
-
-    recognition =
-        new SpeechRecognition();
-
-
-    recognition.lang =
-        "en-IN";
-
-
-    recognition.interimResults =
-        false;
-
-
-    recognition.continuous =
-        false;
-
-
-    recognition.onstart =
-        ()=>{
-
-            $("mic")
-                .classList
-                .add("active");
-
-
-            $("vs").textContent =
-                "LISTENING // SPEAK NOW";
-
-
-            setState(
-                "listen"
-            );
-
-
-            addLog(
-                "VOICE",
-                "Microphone channel active"
-            );
-
-        };
-
-
-    recognition.onresult =
-        event => {
-
-            const text =
-                event
-                .results[0][0]
-                .transcript;
-
-
-            $("vs").textContent =
-                "INPUT CAPTURED";
-
-
-            addLog(
-                "USER",
-                text
-            );
-
-
-            ask(
-                text
-            );
-
-        };
-
-
-    recognition.onerror =
-        error => {
-
-            console.error(
-                error
-            );
-
-
-            $("mic")
-                .classList
-                .remove("active");
-
-
-            $("vs").textContent =
-                "VOICE LINK // ERROR";
-
-
-            setState(
-                "idle"
-            );
-
-        };
-
-
-    recognition.onend =
-        ()=>{
-
-            $("mic")
-                .classList
-                .remove("active");
-
-
-            $("vs").textContent =
-                "VOICE LINK // READY";
-
-
-            audioLevel =
-                0;
-
-        };
-
-
-    $("mic").onclick =
-        ()=>{
-
-            try{
-
-                recognition.start();
-
-            }
-            catch(error){
-
-                try{
-                    recognition.stop();
-                }
-                catch(_){}
-
-            }
-
-        };
-
-}
-else{
-
-    $("vs").textContent =
-        "VOICE // USE CHROME OR EDGE";
-
-}
-
-
-/* =========================================================
-   MICROPHONE VISUALIZER
-========================================================= */
-
-let audioContext;
-
-let analyser;
-
-let microphoneSource;
-
-let audioData;
-
-
-async function setupMicrophone(){
-
-    try{
-
-        const stream =
-            await navigator
-            .mediaDevices
-            .getUserMedia({
-                audio:true
-            });
-
-
-        audioContext =
-            new AudioContext();
-
-
-        analyser =
-            audioContext
-            .createAnalyser();
-
-
-        analyser.fftSize =
-            256;
-
-
-        microphoneSource =
-            audioContext
-            .createMediaStreamSource(
-                stream
-            );
-
-
-        microphoneSource.connect(
-            analyser
-        );
-
-
-        audioData =
-            new Uint8Array(
-                analyser.frequencyBinCount
-            );
-
-
-        function meter(){
-
-            requestAnimationFrame(
-                meter
-            );
-
-
-            if(
-                !analyser
-            )
-                return;
-
-
-            analyser.getByteFrequencyData(
-                audioData
-            );
-
-
-            let total =
-                0;
-
-
-            for(
-                const value
-                of audioData
-            ){
-
-                total +=
-                    value;
-
-            }
-
-
-            audioLevel =
-                Math.min(
-                    1,
-                    total /
-                    audioData.length /
-                    110
-                );
-
-        }
-
-
-        meter();
-
-    }
-    catch(error){
-
-        console.warn(
-            "Microphone visualizer unavailable"
-        );
-
-    }
-
-}
-
-
-$("mic").addEventListener(
-    "mousedown",
-    ()=>{
-
-        if(
-            !audioContext
-        ){
-
-            setupMicrophone();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   BACKEND HEALTH CHECK
+   BACKEND HEALTH
 ========================================================= */
 
 fetch(
-    API_BASE +
-    "/api/health"
+API_BASE+
+"/api/health",
+{
+cache:"no-store"
+}
 )
+
 .then(
-    response => {
+response=>{
 
-        if(
-            !response.ok
-        )
-            throw new Error(
-                "Health check failed"
-            );
+if(!response.ok)
+throw 0;
 
-        return response.json();
+return response.json();
 
-    }
+}
 )
+
 .then(
-    ()=>{
+()=>{
 
-        $("gateway").textContent =
-            "ONLINE";
+$("gateway").textContent =
+"ONLINE";
 
+addLog(
+"GATEWAY",
+"Health check passed"
+);
 
-        addLog(
-            "GATEWAY",
-            "Health check passed"
-        );
-
-    }
+}
 )
+
 .catch(
-    ()=>{
+()=>{
 
-        $("gateway").textContent =
-            "OFFLINE";
+$("gateway").textContent =
+"OFFLINE";
 
+addLog(
+"GATEWAY",
+"Backend not detected — 3D core remains active"
+);
 
-        addLog(
-            "GATEWAY",
-            "Backend not detected — 3D UI remains active"
-        );
-
-    }
+}
 );
 
 
-/* =========================================================
-   INITIAL STATE
-========================================================= */
+/* START SLEEP */
 
 setState(
-    "idle"
+"idle"
+);
+
+
+/*
+IMPORTANT:
+Browsers block automatic audio until
+the user interacts with the page.
+So the real boot sound starts after
+the first interaction.
+*/
+
+document.addEventListener(
+"pointerdown",
+()=>{
+
+try{
+unlockAudio();
+}catch(_){}
+
+},
+{
+once:true
+}
 );
 
 </script>
