@@ -1,5 +1,5 @@
 /* HIVAI LOCAL VOICE // Kokoro-82M */
-import { KokoroTTS } from "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.0/+esm";
+import { KokoroTTS } from "https://esm.sh/kokoro-js@1.2.0?target=es2022";
 
 const MODEL = "onnx-community/Kokoro-82M-v1.0-ONNX";
 let tts = null;
