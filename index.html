@@ -1046,7 +1046,13 @@ Sleep mode initialized
 <script type="module">
 
 import * as THREE from "three";
-import { initHIVAIVoice, speakHIVAI, stopHIVAI, getVoiceEnergy } from "./js/hivai-voice.js";
+let voiceModule = null;
+
+async function loadVoiceModule(){
+    if(voiceModule) return voiceModule;
+    voiceModule = await import("./js/hivai-voice.js");
+    return voiceModule;
+}
 
 
 const $ =
@@ -1782,7 +1788,8 @@ async function prepareVoice(){
     try{
         $("vs").textContent = "VOICE MODEL // LOADING";
         addLog("VOICE","Loading local Kokoro neural voice");
-        await initHIVAIVoice(progress => {
+        const voice = await loadVoiceModule();
+        await voice.initHIVAIVoice(progress => {
             if(progress.status === "READY") $("vs").textContent = "VOICE LINK // READY";
         });
         voiceReady = true;
@@ -1808,7 +1815,8 @@ async function speak(text){
     $("vs").textContent = "VOICE // SPEAKING";
 
     try{
-        await speakHIVAI(text, {
+        const voice = await loadVoiceModule();
+        await voice.speakHIVAI(text, {
             voice: "am_michael",
             onStart(){
                 speaking = true;
@@ -1836,7 +1844,7 @@ async function speak(text){
 }
 
 function stopVoice(){
-    stopHIVAI();
+    if(voiceModule?.stopHIVAI) voiceModule.stopHIVAI();
     speaking = false;
     if(state === "speak") setState("wake");
 }
@@ -2093,7 +2101,7 @@ function animate(ms){
     const stateSpeed = {idle:.18,wake:.7,listen:2.7,think:1.8,speak:1.25}[state] || .5;
     const base = {idle:.34,wake:1,listen:1.18,think:1.05,speak:1.08}[state] || 1;
     const targetScale = state === "idle" ? .48 : base;
-    const voiceEnergy = speaking ? Math.max(audioLevel,getVoiceEnergy()) : audioLevel;
+    const voiceEnergy = speaking ? Math.max(audioLevel,voiceModule?.getVoiceEnergy ? voiceModule.getVoiceEnergy() : 0) : audioLevel;
     const pulse = targetScale*(1 + Math.sin(time*3.2)*(.025+voiceEnergy*.08) + voiceEnergy*.16);
     const target = new THREE.Vector3(pulse,pulse,pulse);
     core.scale.lerp(target,.09);
