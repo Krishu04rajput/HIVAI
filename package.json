@@ -5,5 +5,8 @@
   "type": "module",
   "engines": {
     "node": "20.x"
+  },
+  "dependencies": {
+    "kokoro-js": "1.2.0"
   }
 }
