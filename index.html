@@ -592,6 +592,8 @@ color:#75adb5;
 font:7px monospace;
 }
 
+.quick button.active{border-color:var(--orange);color:var(--orange2);box-shadow:0 0 14px rgba(255,138,0,.18);}
+
 .quick button:hover{
 border-color:var(--cyan);
 color:var(--cyan);
@@ -973,6 +975,7 @@ SEND
 <div class="title">
 QUICK COMMANDS
 </div>
+<div id="ambientStatus" style="font-size:7px;color:var(--muted);margin:-5px 0 9px">AMBIENT // OFF</div>
 
 <div class="quick">
 
@@ -990,6 +993,10 @@ CORE DIAGNOSTIC
 
 <button data-cmd="Sleep mode">
 SLEEP CORE
+</button>
+
+<button id="ambientBtn" aria-pressed="false">
+AMBIENT SOUND
 </button>
 
 </div>
