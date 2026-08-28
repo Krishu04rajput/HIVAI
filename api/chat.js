@@ -14,14 +14,7 @@ export default async function handler(request) {
     if(!history.length || history[history.length-1].role!=="user" || history[history.length-1].content!==message)history.push({role:"user",content:message});
     const response=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${key}`},body:JSON.stringify({model,instructions:"You are HIVAI (Hive Intelligence Virtual AI System), the user's personal AI assistant. Be useful, natural and technically capable. Address the user as Sir when appropriate. Help with programming, apps, games, AI, projects, mathematics, science and analysis. Give practical answers and complete code when requested. Never reveal secrets or API keys. Do not claim permanent memory; recent conversation is supplied by the app. Do not unnecessarily mention the underlying provider.",input:history,store:false})});
     const data=await response.json().catch(()=>({}));
-    if(!response.ok){
-  console.error("OpenAI",response.status,data);
-  const apiMessage=data?.error?.message || data?.error?.code || "Unknown OpenAI API error";
-  return new Response(JSON.stringify({
-    ok:false,
-    error:`OpenAI ${response.status}: ${apiMessage}`
-  }),{status:502,headers});
-}
+    if(!response.ok){console.error("OpenAI",response.status,data);return new Response(JSON.stringify({ok:false,error:`AI request failed (${response.status}). Check OPENAI_MODEL and API access.`}),{status:502,headers});}
     let reply=data.output_text||"";
     if(!reply&&Array.isArray(data.output))for(const item of data.output)for(const c of (item.content||[]))if(c.type==="output_text")reply+=(reply?"\n":"")+(c.text||"");
     reply=String(reply).trim();
