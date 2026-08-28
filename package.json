@@ -1,12 +1,7 @@
 {
-  "name": "hivai",
-  "version": "1.5.0",
-  "private": true,
-  "type": "module",
-  "engines": {
-    "node": "20.x"
-  },
-  "dependencies": {
-    "kokoro-js": "1.2.0"
-  }
+  "name":"hivai",
+  "version":"2.0.0",
+  "private":true,
+  "type":"module",
+  "engines":{"node":"20.x"}
 }
