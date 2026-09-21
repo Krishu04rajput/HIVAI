@@ -5,7 +5,7 @@ import { runLocalTool } from './tools/tool-registry.js';
 const $ = (id) => document.getElementById(id);
 const memory = new LocalMemory();
 const brain = new LocalBrain({
-  modelPath: './models/Qwen2.5-0.5B-Instruct',
+  modelPath: 'Qwen2.5-0.5B-Instruct',
   onStatus: (status) => {
     $('modelStatus').textContent = status.model;
     $('inference').textContent = status.inference;
