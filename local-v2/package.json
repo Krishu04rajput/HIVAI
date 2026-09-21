@@ -1,0 +1,17 @@
+{
+  "name": "hivai-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.3.0",
+    "three": "^0.179.1",
+    "vite": "^7.1.5"
+  },
+  "devDependencies": {}
+}
