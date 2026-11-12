@@ -153,36 +153,11 @@ export function createHIVAICore(container, onMetrics = () => {}) {
   const root = new THREE.Group();
   scene.add(root);
 
-  const galaxy = new THREE.Group();
-  root.add(galaxy);
-
   const mobile = window.matchMedia("(max-width: 700px)").matches;
-  const galaxyMaterial = particleMaterial(mobile ? 2.2 : 2.6, 0.86);
-  const galaxyPoints = new THREE.Points(makeGalaxy(mobile ? 2600 : 6200), galaxyMaterial);
-  galaxy.add(galaxyPoints);
-
   const nucleusGroup = new THREE.Group();
   root.add(nucleusGroup);
 
-  const nucleusMaterial = particleMaterial(mobile ? 3.2 : 3.8, 1);
-  const nucleusPoints = new THREE.Points(makeNucleusParticles(mobile ? 1100 : 3200), nucleusMaterial);
-  nucleusGroup.add(nucleusPoints);
-
   const glowMap = makeGlowTexture();
-  const cyanGlow = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: glowMap, color: CYAN, transparent: true, opacity: 0.8,
-    blending: THREE.AdditiveBlending, depthWrite: false
-  }));
-  cyanGlow.scale.set(230, 230, 1);
-  root.add(cyanGlow);
-
-  const orangeGlow = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: glowMap, color: ORANGE, transparent: true, opacity: 0.82,
-    blending: THREE.AdditiveBlending, depthWrite: false
-  }));
-  orangeGlow.scale.set(84, 84, 1);
-  nucleusGroup.add(orangeGlow);
-
   // Smooth luminous nucleus wrapped in a restrained Fresnel energy shell.
   // A living plasma singularity: turbulent cyan filaments wrapped around a hot pearl core.
   const heart = new THREE.Mesh(
@@ -288,50 +263,7 @@ export function createHIVAICore(container, onMetrics = () => {}) {
   );
   nucleusGroup.add(energyShell);
 
-  function makeRing(radius, tube, color, opacity, rotation) {
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(radius, tube, 6, 180),
-      new THREE.MeshBasicMaterial({
-        color, transparent: true, opacity,
-        blending: THREE.AdditiveBlending, depthWrite: false
-      })
-    );
-    ring.rotation.set(rotation[0], rotation[1], rotation[2]);
-    root.add(ring);
-    return ring;
-  }
 
-  const rings = [
-    makeRing(76, 0.75, CYAN, 0.42, [0.85, 0.1, 0.2]),
-    makeRing(112, 0.55, ORANGE, 0.30, [1.25, 0.4, 0.1]),
-    makeRing(154, 0.65, CYAN, 0.25, [0.3, 1.0, 0.8]),
-    makeRing(202, 0.42, ORANGE, 0.18, [1.7, 0.2, 0.4]),
-    makeRing(246, 0.35, CYAN, 0.14, [0.6, 1.4, 0.1])
-  ];
-
-  const orbiters = [];
-  for (let i = 0; i < 34; i++) {
-    const dot = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: glowMap,
-      color: i % 6 === 0 ? ORANGE : CYAN,
-      transparent: true,
-      opacity: 0.72,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    }));
-    const radius = 62 + Math.random() * 190;
-    const angle = Math.random() * Math.PI * 2;
-    const size = 5 + Math.random() * 8;
-    dot.scale.set(size, size, 1);
-    galaxy.add(dot);
-    orbiters.push({ dot, radius, angle, speed: 0.12 + Math.random() * 0.34, phase: Math.random() * 6.28 });
-  }
-
-  const starGeometry = makeGalaxy(mobile ? 420 : 1100);
-  const starMaterial = particleMaterial(1.1, 0.38);
-  const stars = new THREE.Points(starGeometry, starMaterial);
-  stars.scale.setScalar(1.55);
-  scene.add(stars);
 
   let state = "idle";
   let audioLevel = 0;
@@ -387,13 +319,9 @@ export function createHIVAICore(container, onMetrics = () => {}) {
     pointerX += (targetX - pointerX) * 0.035;
     pointerY += (targetY - pointerY) * 0.035;
 
-    root.rotation.y = Math.sin(elapsed * 0.12) * 0.08 + pointerX;
-    root.rotation.x = Math.sin(elapsed * 0.16) * 0.035 + pointerY;
-    galaxy.rotation.z += dt * 0.035 * speed;
-    galaxy.rotation.y = Math.sin(elapsed * 0.18) * 0.08;
-    nucleusGroup.rotation.y += dt * 0.34 * speed;
-    nucleusGroup.rotation.x = Math.sin(elapsed * 0.42) * 0.13;
-    nucleusPoints.rotation.z -= dt * 0.22 * speed;
+    root.rotation.y = Math.sin(elapsed * 0.12) * 0.035 + pointerX * 0.35;
+    root.rotation.x = Math.sin(elapsed * 0.16) * 0.02 + pointerY * 0.35;
+    nucleusGroup.rotation.y = Math.sin(elapsed * 0.18) * 0.12;
     heart.scale.setScalar(1 + pulse * 0.055 + Math.sin(elapsed * 2.1) * 0.018);
     heart.material.uniforms.uTime.value = elapsed;
     heart.material.uniforms.uPulse.value = pulse;
@@ -403,34 +331,8 @@ export function createHIVAICore(container, onMetrics = () => {}) {
     energyShell.material.uniforms.uTime.value = elapsed;
     energyShell.material.uniforms.uPulse.value = pulse;
 
-    galaxyMaterial.uniforms.uTime.value = elapsed;
-    galaxyMaterial.uniforms.uPulse.value = pulse;
-    nucleusMaterial.uniforms.uTime.value = elapsed * 1.35;
-    nucleusMaterial.uniforms.uPulse.value = pulse;
-    starMaterial.uniforms.uTime.value = elapsed * 0.35;
-    starMaterial.uniforms.uPulse.value = pulse * 0.2;
-
-    cyanGlow.material.opacity = config.glow * (0.72 + pulse * 0.12);
-    cyanGlow.scale.setScalar(210 + pulse * 30);
-    orangeGlow.material.opacity = 0.22 + pulse * 0.12;
-    orangeGlow.scale.setScalar(76 + pulse * 12);
-
-    rings.forEach((ring, index) => {
-      ring.rotation.z += dt * (index % 2 ? -1 : 1) * (0.025 + index * 0.004) * speed;
-      ring.rotation.x += dt * 0.009 * speed;
-      ring.material.opacity = (0.12 + pulse * 0.08) * (1 - index * 0.08);
-    });
-
-    orbiters.forEach((item) => {
-      item.angle += dt * item.speed * speed;
-      const r = item.radius * (1 + audioLevel * 0.035);
-      item.dot.position.set(
-        Math.cos(item.angle) * r,
-        Math.sin(item.angle) * r * 0.68,
-        Math.sin(item.angle * 1.7 + item.phase) * (18 + r * 0.12)
-      );
-      item.dot.material.opacity = 0.38 + 0.42 * (0.5 + 0.5 * Math.sin(elapsed * 2 + item.phase));
-    });
+    heart.material.uniforms.uTime.value = elapsed;
+    heart.material.uniforms.uPulse.value = pulse;
 
     const energy = Math.round(Math.min(99, (state === "idle" ? 18 : state === "listen" ? 88 : state === "think" ? 84 : 68) + audioLevel * 12 + pulse * 3));
     if (Math.floor(elapsed * 8) !== Math.floor((elapsed - dt) * 8)) {
