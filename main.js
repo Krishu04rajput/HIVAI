@@ -147,9 +147,9 @@ async function speak(text){
   if(!text)return;
   const ready=await prepareVoice(); if(!ready)return;
   speaking=true;setState("speak");
-  try{const v=await loadVoice();await v.speakHIVAI(text,{voice:"am_michael",onStart(){speaking=true;coreEngine.setAudioLevel(0.32);setState("speak");$("vs").textContent="VOICE // SPEAKING";},onEnd(){speaking=false;coreEngine.setAudioLevel(0);$("vs").textContent="VOICE LINK // READY";if(state==="speak")setState("wake");},onError(e){console.error(e);speaking=false;$("vs").textContent="VOICE // ERROR";if(state==="speak")setState("wake");}});}catch(e){speaking=false;console.error(e);addLog("VOICE","Playback failed");if(state==="speak")setState("wake");}
+  try{const v=await loadVoice();await v.speakHIVAI(text,{voice:"am_michael",onStart(){speaking=true;coreEngine.setAudioLevel(0.32);setState("speak");$("vs").textContent="VOICE // SPEAKING";},onEnd(){speaking=false;coreEngine.setAudioLevel(0);$("vs").textContent="VOICE LINK // READY";if(state==="speak")setState("wake");},onError(e){console.error(e);speaking=false;coreEngine.setAudioLevel(0);$("vs").textContent="VOICE // ERROR";if(state==="speak")setState("wake");}});}catch(e){speaking=false;console.error(e);addLog("VOICE","Playback failed");if(state==="speak")setState("wake");}
 }
-function stopVoice(){if(voiceModule?.stopHIVAI)voiceModule.stopHIVAI();speaking=false;if(state==="speak")setState("wake");}
+function stopVoice(){if(voiceModule?.stopHIVAI)voiceModule.stopHIVAI();speaking=false;coreEngine.setAudioLevel(0);if(state==="speak")setState("wake");}
 
 // ---------- commands/chat ----------
 function command(text){
