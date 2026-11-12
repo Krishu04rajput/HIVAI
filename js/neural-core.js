@@ -184,11 +184,72 @@ export function createHIVAICore(container, onMetrics = () => {}) {
   nucleusGroup.add(orangeGlow);
 
   // Smooth luminous nucleus wrapped in a restrained Fresnel energy shell.
+  // A living plasma singularity: turbulent cyan filaments wrapped around a hot pearl core.
   const heart = new THREE.Mesh(
-    new THREE.SphereGeometry(9.5, 64, 64),
-    new THREE.MeshBasicMaterial({
-      color: 0xd9fbff, transparent: true, opacity: 0.96,
-      blending: THREE.AdditiveBlending, depthWrite: false
+    new THREE.SphereGeometry(17, 96, 96),
+    new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uPulse: { value: 0.2 } },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vView;
+        void main() {
+          vUv = uv;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vNormal = normalize(normalMatrix * normal);
+          vView = normalize(-mv.xyz);
+          gl_Position = projectionMatrix * mv;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uPulse;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vView;
+        float hash(vec3 p) {
+          p = fract(p * 0.3183099 + vec3(0.1));
+          p *= 17.0;
+          return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+        }
+        float noise(vec3 p) {
+          vec3 i = floor(p);
+          vec3 f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          return mix(mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x),
+                         mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                     mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                         mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+        }
+        void main() {
+          vec2 uv = vUv - 0.5;
+          float angle = atan(uv.y, uv.x);
+          float radius = length(uv);
+          float t = uTime * (0.28 + uPulse * 0.22);
+          vec3 q = vec3(uv * 5.0, t);
+          float n = noise(q * 2.8) * 0.65 + noise(q * 5.6 + 3.0) * 0.35;
+          float spiral = angle * 4.0 - radius * 34.0 + n * 7.0 - t * 3.2;
+          float filament = pow(max(0.0, sin(spiral)), 13.0);
+          float secondary = pow(max(0.0, sin(spiral * 1.73 + n * 4.0)), 20.0);
+          float turbulence = smoothstep(0.18, 0.92, n + 0.18 * sin(angle * 7.0 - t * 2.0));
+          float core = 1.0 - smoothstep(0.02, 0.34, radius);
+          vec3 deep = vec3(0.006, 0.035, 0.075);
+          vec3 blue = vec3(0.015, 0.30, 0.55);
+          vec3 cyan = vec3(0.02, 0.78, 0.98);
+          vec3 pearl = vec3(0.78, 0.98, 1.0);
+          vec3 color = mix(deep, blue, turbulence * 0.9);
+          color = mix(color, cyan, filament * 0.92 + secondary * 0.55);
+          color = mix(color, pearl, core * 0.94);
+          float rim = pow(1.0 - max(dot(normalize(vNormal), normalize(vView)), 0.0), 2.4);
+          color += vec3(0.0, 0.38, 0.58) * rim * 0.75;
+          float alpha = 0.9 + filament * 0.1;
+          gl_FragColor = vec4(color * (1.0 + uPulse * 0.18), alpha);
+        }
+      `,
+      transparent: false,
+      depthWrite: true,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false
     })
   );
   nucleusGroup.add(heart);
@@ -333,7 +394,9 @@ export function createHIVAICore(container, onMetrics = () => {}) {
     nucleusGroup.rotation.y += dt * 0.34 * speed;
     nucleusGroup.rotation.x = Math.sin(elapsed * 0.42) * 0.13;
     nucleusPoints.rotation.z -= dt * 0.22 * speed;
-    heart.scale.setScalar(1 + pulse * 0.045 + Math.sin(elapsed * 2.1) * 0.018);
+    heart.scale.setScalar(1 + pulse * 0.055 + Math.sin(elapsed * 2.1) * 0.018);
+    heart.material.uniforms.uTime.value = elapsed;
+    heart.material.uniforms.uPulse.value = pulse;
     energyShell.rotation.y += dt * 0.055 * speed;
     energyShell.rotation.x = Math.sin(elapsed * 0.22) * 0.08;
     energyShell.scale.setScalar(1 + pulse * 0.018);
