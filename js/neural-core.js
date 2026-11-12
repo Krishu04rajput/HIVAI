@@ -62,6 +62,7 @@ function makeGalaxy(count) {
 function makeNucleusParticles(count) {
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
+  const sizes = new Float32Array(count);
 
   for (let i = 0; i < count; i++) {
     const u = Math.random() * 2 - 1;
@@ -73,6 +74,7 @@ function makeNucleusParticles(count) {
     positions[i * 3 + 2] = Math.sin(a) * s * r;
 
     const color = Math.random() > 0.76 ? ORANGE : CYAN;
+    sizes[i] = 0.7 + Math.random() * 1.5;
     colors[i * 3] = color.r;
     colors[i * 3 + 1] = color.g;
     colors[i * 3 + 2] = color.b;
@@ -81,6 +83,7 @@ function makeNucleusParticles(count) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
   return geometry;
 }
 
