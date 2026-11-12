@@ -108,10 +108,9 @@ const coreEngine = createHIVAICore($("scene"), ({ energy, load }) => {
 });
 
 function setState(next){
-  state=next; coreEngine.setState(next); const d={idle:["SLEEP","SLEEPING // AWAITING COMMAND",CYAN],wake:["AWAKE","CORE AWAKE // AWAITING COMMAND",ORANGE],listen:["LISTENING","LISTENING // VOICE LINK ACTIVE",ORANGE],think:["THINKING","THINKING // PROCESSING",ORANGE],speak:["SPEAKING","SPEAKING // RESPONSE ACTIVE",CYAN]}[next]; if(!d)return;
+  state=next; coreEngine.setState(next); const d={idle:["SLEEP","SLEEPING // AWAITING COMMAND"],wake:["AWAKE","CORE AWAKE // AWAITING COMMAND"],listen:["LISTENING","LISTENING // VOICE LINK ACTIVE"],think:["THINKING","THINKING // PROCESSING"],speak:["SPEAKING","SPEAKING // RESPONSE ACTIVE"]}[next]; if(!d)return;
   $("mode").textContent=d[0];$("state").textContent=d[1];$("status").textContent=d[0];$("coreStatus").textContent=d[0];$("brainStatus").textContent=next==="idle"?"STANDBY":next.toUpperCase();
   ["idle","wakeState","listen","think","speak"].forEach(id=>$(id)?.classList.remove("active")); const active=next==="wake"?"wakeState":next; $(active)?.classList.add("active");
-  shell.material.color.copy(d[2]); glow.material.color.copy(d[2]); glow.material.opacity=next==="idle"?.48:next==="listen"?.9:.72;
 }
 function wakeCore(){unlockAudio();setState("wake");wakeSound();startAmbient();addLog("CORE","Wake sequence complete // orange nucleus online");$("vs").textContent=voiceReady?"VOICE LINK // READY":"VOICE LINK // TAP SPEAK TO LOAD";}
 function sleepCore(){stopVoice();setState("idle");sleepSound();stopAmbient();addLog("CORE","Sleep sequence complete // cyan low-energy nucleus");}
