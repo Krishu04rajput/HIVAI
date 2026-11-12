@@ -1,9 +1,5 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js";
 
-const CYAN = new THREE.Color("#00eaff");
-const ICE = new THREE.Color("#b9fbff");
-const ORANGE = new THREE.Color("#ff8a00");
-
 const STATES = {
   idle:   { speed: 0.16, pulse: 0.16, glow: 0.42 },
   wake:   { speed: 0.72, pulse: 0.42, glow: 0.82 },
@@ -11,127 +7,6 @@ const STATES = {
   think:  { speed: 1.65, pulse: 0.92, glow: 0.96 },
   speak:  { speed: 0.92, pulse: 0.68, glow: 0.92 }
 };
-
-function makeGlowTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 128;
-  const ctx = canvas.getContext("2d");
-  const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-  gradient.addColorStop(0, "rgba(255,255,255,1)");
-  gradient.addColorStop(0.12, "rgba(0,234,255,.9)");
-  gradient.addColorStop(0.38, "rgba(0,180,255,.25)");
-  gradient.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 128, 128);
-  return new THREE.CanvasTexture(canvas);
-}
-
-function makeGalaxy(count) {
-  const positions = new Float32Array(count * 3);
-  const colors = new Float32Array(count * 3);
-  const sizes = new Float32Array(count);
-  const arms = 5;
-
-  for (let i = 0; i < count; i++) {
-    const radius = 52 + Math.pow(Math.random(), 0.72) * 245;
-    const arm = Math.floor(Math.random() * arms);
-    const angle = (arm / arms) * Math.PI * 2
-      + radius * 0.012
-      + (Math.random() - 0.5) * 0.72;
-    const spread = 5 + radius * 0.075;
-
-    positions[i * 3] = Math.cos(angle) * radius + (Math.random() - 0.5) * spread;
-    positions[i * 3 + 1] = Math.sin(angle) * radius * 0.72 + (Math.random() - 0.5) * spread;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * (24 + radius * 0.34);
-
-    const mix = Math.random();
-    const color = mix > 0.91 ? ORANGE : mix > 0.64 ? ICE : CYAN;
-    colors[i * 3] = color.r;
-    colors[i * 3 + 1] = color.g;
-    colors[i * 3 + 2] = color.b;
-    sizes[i] = 0.55 + Math.random() * 1.8;
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-  geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
-  return geometry;
-}
-
-function makeNucleusParticles(count) {
-  const positions = new Float32Array(count * 3);
-  const colors = new Float32Array(count * 3);
-  const sizes = new Float32Array(count);
-
-  for (let i = 0; i < count; i++) {
-    const u = Math.random() * 2 - 1;
-    const a = Math.random() * Math.PI * 2;
-    const r = 7 + Math.pow(Math.random(), 0.72) * 28;
-    const s = Math.sqrt(1 - u * u);
-    positions[i * 3] = Math.cos(a) * s * r;
-    positions[i * 3 + 1] = u * r;
-    positions[i * 3 + 2] = Math.sin(a) * s * r;
-
-    const tone = Math.random();
-    const color = tone > 0.965 ? ORANGE : tone > 0.58 ? ICE : CYAN;
-    sizes[i] = 0.45 + Math.random() * 1.25;
-    colors[i * 3] = color.r;
-    colors[i * 3 + 1] = color.g;
-    colors[i * 3 + 2] = color.b;
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-  geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
-  return geometry;
-}
-
-function particleMaterial(size, opacity) {
-  return new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-    uniforms: {
-      uTime: { value: 0 },
-      uPulse: { value: 0.2 },
-      uPointSize: { value: size },
-      uOpacity: { value: opacity }
-    },
-    vertexShader: `
-      attribute float aSize;
-      attribute vec3 color;
-      uniform float uTime;
-      uniform float uPulse;
-      uniform float uPointSize;
-      varying vec3 vColor;
-      varying float vAlpha;
-      void main() {
-        vec3 p = position;
-        float wave = sin(uTime * 1.25 + length(position) * 0.045);
-        p += normalize(position + vec3(0.001)) * wave * (0.8 + uPulse * 2.4);
-        p.x += sin(uTime * 0.7 + position.y * 0.035) * (0.5 + uPulse);
-        vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-        gl_Position = projectionMatrix * mvPosition;
-        gl_PointSize = uPointSize * aSize * (260.0 / max(80.0, -mvPosition.z));
-        vColor = color;
-        vAlpha = 0.55 + 0.45 * sin(uTime * 1.8 + length(position) * 0.08);
-      }
-    `,
-    fragmentShader: `
-      uniform float uOpacity;
-      varying vec3 vColor;
-      varying float vAlpha;
-      void main() {
-        float d = length(gl_PointCoord - vec2(0.5));
-        float glow = 1.0 - smoothstep(0.08, 0.5, d);
-        if (glow < 0.015) discard;
-        gl_FragColor = vec4(vColor, glow * vAlpha * uOpacity);
-      }
-    `
-  });
-}
 
 export function createHIVAICore(container, onMetrics = () => {}) {
   if (!container) throw new Error("HIVAI core container was not found.");
@@ -157,7 +32,6 @@ export function createHIVAICore(container, onMetrics = () => {}) {
   const nucleusGroup = new THREE.Group();
   root.add(nucleusGroup);
 
-  const glowMap = makeGlowTexture();
   // Smooth luminous nucleus wrapped in a restrained Fresnel energy shell.
   // A living plasma singularity: turbulent cyan filaments wrapped around a hot pearl core.
   const heart = new THREE.Mesh(
@@ -331,9 +205,6 @@ export function createHIVAICore(container, onMetrics = () => {}) {
     energyShell.material.uniforms.uTime.value = elapsed;
     energyShell.material.uniforms.uPulse.value = pulse;
 
-    heart.material.uniforms.uTime.value = elapsed;
-    heart.material.uniforms.uPulse.value = pulse;
-
     const energy = Math.round(Math.min(99, (state === "idle" ? 18 : state === "listen" ? 88 : state === "think" ? 84 : 68) + audioLevel * 12 + pulse * 3));
     if (Math.floor(elapsed * 8) !== Math.floor((elapsed - dt) * 8)) {
       onMetrics({ energy, load: Math.round(Math.min(99, energy * 0.82)), state });
@@ -359,7 +230,6 @@ export function createHIVAICore(container, onMetrics = () => {}) {
         if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose());
         else object.material?.dispose?.();
       });
-      glowMap.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     }
