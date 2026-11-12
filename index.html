@@ -3,1053 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="theme-color" content="#010509">
-
-<title>HIVAI // Hive Intelligence Virtual AI System</title>
-
+<meta name="theme-color" content="#05080d">
+<meta name="description" content="HIVAI — Hive Intelligence Virtual AI System">
+<title>HIVAI — Intelligence Interface</title>
 <style>
-
 :root{
---cyan:#00eaff;
---cyan2:#8bfbff;
---orange:#ff8a00;
---orange2:#ffd27a;
---bg:#010509;
---panel:rgba(2,12,18,.78);
---line:rgba(0,234,255,.24);
---text:#d9fbff;
---muted:#568b94;
-}
-
-*{
-box-sizing:border-box;
-}
-
-html,body{
-margin:0;
-width:100%;
-height:100%;
-overflow:hidden;
-background:var(--bg);
-color:var(--text);
-font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-}
-
-button,input{
-font:inherit;
-}
-
-button{
-cursor:pointer;
-}
-
-#scene{
-position:fixed;
-inset:0;
-z-index:0;
-}
-
-canvas{
-display:block;
-}
-
-.vignette,
-.scanlines,
-.grid{
-position:fixed;
-inset:0;
-pointer-events:none;
-}
-
-.vignette{
-z-index:1;
-background:
-radial-gradient(
-circle at center,
-transparent 25%,
-rgba(0,0,0,.2) 60%,
-rgba(0,0,0,.9) 100%
-);
-}
-
-.scanlines{
-z-index:2;
-opacity:.07;
-background:
-repeating-linear-gradient(
-0deg,
-transparent 0 3px,
-rgba(0,234,255,.08) 4px
-);
-}
-
-.grid{
-z-index:1;
-opacity:.06;
-background-image:
-linear-gradient(
-rgba(0,234,255,.25) 1px,
-transparent 1px
-),
-linear-gradient(
-90deg,
-rgba(0,234,255,.25) 1px,
-transparent 1px
-);
-background-size:60px 60px;
-mask-image:
-radial-gradient(
-circle at center,
-black,
-transparent 72%
-);
-}
-
-/* HUD */
-
-.hud{
-position:fixed;
-inset:0;
-z-index:5;
-pointer-events:none;
-}
-
-.topbar{
-height:70px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 28px;
-
-border-bottom:1px solid var(--line);
-
-background:
-linear-gradient(
-180deg,
-rgba(1,8,13,.96),
-rgba(1,8,13,.38)
-);
-
-pointer-events:auto;
-}
-
-.brand{
-display:flex;
-align-items:center;
-gap:15px;
-}
-
-.diamond{
-width:15px;
-height:15px;
-border:1px solid var(--cyan);
-transform:rotate(45deg);
-box-shadow:0 0 15px rgba(0,234,255,.7);
-animation:diamond 2.4s linear infinite;
-}
-
-.brand h1{
-margin:0;
-color:var(--cyan);
-font-size:22px;
-letter-spacing:6px;
-}
-
-.brand small{
-display:block;
-margin-top:4px;
-color:var(--muted);
-font-size:8px;
-letter-spacing:2px;
-}
-
-.topstats{
-display:flex;
-gap:25px;
-color:var(--muted);
-font-size:8px;
-letter-spacing:1.5px;
-}
-
-.topstats b{
-color:var(--cyan);
-font-weight:500;
-}
-
-.dot{
-display:inline-block;
-width:6px;
-height:6px;
-margin-right:5px;
-border-radius:50%;
-background:var(--cyan);
-box-shadow:0 0 12px var(--cyan);
-animation:blink 1.3s infinite;
-}
-
-/* LAYOUT */
-
-.layout{
-position:absolute;
-top:84px;
-bottom:22px;
-left:20px;
-right:20px;
-
-display:grid;
-
-grid-template-columns:
-245px
-minmax(350px,1fr)
-285px;
-
-gap:17px;
-}
-
-.column{
-display:flex;
-flex-direction:column;
-gap:13px;
-min-height:0;
-}
-
-.panel{
-position:relative;
-padding:14px;
-
-background:var(--panel);
-
-border:1px solid var(--line);
-
-backdrop-filter:blur(10px);
-
-clip-path:
-polygon(
-0 0,
-calc(100% - 11px) 0,
-100% 11px,
-100% 100%,
-11px 100%,
-0 calc(100% - 11px)
-);
-
-box-shadow:
-inset 0 0 30px rgba(0,234,255,.035),
-0 0 25px rgba(0,0,0,.3);
-
-pointer-events:auto;
-}
-
-.panel::before{
-content:"";
-position:absolute;
-left:-1px;
-top:-1px;
-width:8px;
-height:8px;
-
-border-top:2px solid var(--cyan);
-border-left:2px solid var(--cyan);
-}
-
-.title{
-color:var(--cyan);
-font-size:8px;
-letter-spacing:2px;
-margin-bottom:12px;
-}
-
-.row{
-display:flex;
-justify-content:space-between;
-margin:9px 0;
-color:var(--muted);
-font-size:8px;
-}
-
-.row b{
-color:var(--cyan);
-font-weight:500;
-}
-
-.orange{
-color:var(--orange2)!important;
-}
-
-.statgrid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:7px;
-}
-
-.stat{
-padding:9px;
-border:1px solid rgba(0,234,255,.13);
-background:rgba(0,234,255,.025);
-}
-
-.stat span{
-display:block;
-margin-bottom:5px;
-color:var(--muted);
-font-size:7px;
-}
-
-.stat b{
-color:var(--text);
-font-size:11px;
-font-weight:500;
-}
-
-.bar{
-height:3px;
-overflow:hidden;
-background:rgba(0,234,255,.08);
-}
-
-.bar i{
-display:block;
-width:82%;
-height:100%;
-
-background:
-linear-gradient(
-90deg,
-var(--cyan),
-var(--orange)
-);
-
-box-shadow:0 0 12px var(--cyan);
-
-transition:width .35s ease;
-}
-
-.state-list div{
-display:flex;
-justify-content:space-between;
-padding:8px 0;
-
-border-bottom:
-1px solid rgba(0,234,255,.08);
-
-color:#507f88;
-font-size:8px;
-}
-
-.state-list .active{
-color:var(--cyan);
-text-shadow:0 0 9px rgba(0,234,255,.5);
-}
-
-.state-list .active span{
-color:var(--orange);
-}
-
-.grow{
-flex:1;
-min-height:0;
-}
-
-.log{
-color:#568b94;
-font-size:7px;
-line-height:1.9;
-overflow:auto;
-}
-
-.log b{
-color:var(--cyan);
-font-weight:500;
-}
-
-/* CORE AREA */
-
-.core-area{
-position:relative;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-overflow:hidden;
-
-border:
-1px solid rgba(0,234,255,.12);
-
-background:
-radial-gradient(
-circle at center,
-rgba(0,234,255,.07),
-transparent 48%
-);
-
-pointer-events:none;
-}
-
-.core-title{
-position:absolute;
-top:17px;
-text-align:center;
-z-index:5;
-}
-
-.core-title strong{
-display:block;
-color:var(--cyan);
-font-size:12px;
-letter-spacing:5px;
-}
-
-.core-title span{
-color:var(--muted);
-font-size:7px;
-letter-spacing:2px;
-}
-
-.state{
-position:absolute;
-bottom:72px;
-z-index:5;
-
-text-align:center;
-
-color:var(--muted);
-font-size:8px;
-letter-spacing:3px;
-}
-
-.state b{
-color:var(--cyan);
-font-weight:500;
-}
-
-.voice{
-position:absolute;
-bottom:17px;
-
-display:flex;
-align-items:center;
-gap:9px;
-
-z-index:6;
-pointer-events:auto;
-}
-
-.mic{
-width:48px;
-height:48px;
-
-border-radius:50%;
-
-border:1px solid var(--cyan);
-
-background:rgba(0,234,255,.04);
-
-color:var(--cyan);
-
-font-size:17px;
-
-box-shadow:
-0 0 20px rgba(0,234,255,.25);
-
-transition:.25s;
-}
-
-.mic:hover{
-transform:scale(1.05);
-
-box-shadow:
-0 0 30px rgba(0,234,255,.42);
-}
-
-.mic.active{
-color:var(--orange2);
-
-border-color:var(--orange);
-
-box-shadow:
-0 0 30px rgba(255,138,0,.5),
-inset 0 0 20px rgba(255,138,0,.15);
-
-animation:micPulse .8s infinite;
-}
-
-.vstatus{
-padding:10px 15px;
-
-border:
-1px solid var(--line);
-
-border-radius:20px;
-
-background:rgba(1,8,13,.88);
-
-color:var(--muted);
-
-font-size:7px;
-letter-spacing:2px;
-}
-
-.wake{
-padding:10px 12px;
-
-border:
-1px solid rgba(0,234,255,.35);
-
-background:rgba(0,234,255,.04);
-
-color:var(--cyan);
-
-font-size:7px;
-letter-spacing:1px;
-}
-
-.wake:hover{
-border-color:var(--orange);
-color:var(--orange2);
-}
-
-/* CHAT */
-
-.chat{
-height:260px;
-display:flex;
-flex-direction:column;
-}
-
-.messages{
-flex:1;
-overflow:auto;
-
-color:#78aeb7;
-
-font-size:8px;
-line-height:1.7;
-}
-
-.messages div{
-margin:7px 0;
-}
-
-.messages b{
-color:var(--cyan);
-font-weight:500;
-}
-
-.input{
-display:flex;
-gap:6px;
-margin-top:8px;
-}
-
-.input input{
-flex:1;
-min-width:0;
-
-padding:9px;
-
-background:#01080d;
-
-border:
-1px solid var(--line);
-
-outline:none;
-
-color:var(--text);
-
-font:8px monospace;
-}
-
-.input button{
-padding:0 11px;
-
-border:
-1px solid var(--cyan);
-
-background:rgba(0,234,255,.04);
-
-color:var(--cyan);
-
-font:8px monospace;
-}
-
-.quick{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:6px;
-}
-
-.quick button{
-padding:8px 4px;
-
-border:
-1px solid rgba(0,234,255,.18);
-
-background:rgba(0,234,255,.025);
-
-color:#75adb5;
-
-font:7px monospace;
-}
-
-.quick button.active{border-color:var(--orange);color:var(--orange2);box-shadow:0 0 14px rgba(255,138,0,.18);}
-
-.quick button:hover{
-border-color:var(--cyan);
-color:var(--cyan);
-
-box-shadow:
-0 0 12px rgba(0,234,255,.15);
-}
-
-/* ANIMATION */
-
-@keyframes blink{
-50%{
-opacity:.3;
-}
-}
-
-@keyframes micPulse{
-50%{
-transform:scale(1.08);
-}
-}
-
-@keyframes diamond{
-to{
-transform:rotate(405deg);
-}
-}
-
-@media(max-width:980px){
-
-.layout{
-grid-template-columns:1fr;
-}
-
-.column{
-display:none;
-}
-
-.core-area{
-height:100%;
-}
-
-.topstats{
-display:none;
-}
-
-.topbar{
-padding:0 15px;
-}
-
-.brand h1{
-font-size:17px;
-}
-
-.core-title{
-top:10px;
-}
-
-.state{
-bottom:90px;
-}
-
-}
-
+  color-scheme:dark;
+  --bg:#05080d;--panel:rgba(10,17,26,.72);--panel-strong:rgba(10,18,28,.92);
+  --line:rgba(151,190,214,.12);--line-hot:rgba(79,221,237,.3);
+  --text:#e9f3f7;--muted:#718794;--dim:#435966;
+  --cyan:#69e6ee;--cyan-soft:rgba(105,230,238,.12);
+  --amber:#e6a86c;--radius:20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{isolation:isolate}
+button,input{font:inherit}
+button{cursor:pointer}
+#scene{position:fixed;inset:0;z-index:0;pointer-events:none}
+#scene canvas{display:block;width:100%;height:100%}
+.ambient-bg{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 47%,rgba(28,93,111,.13),transparent 34%),radial-gradient(ellipse at 50% 100%,rgba(12,29,43,.3),transparent 55%),linear-gradient(145deg,#070b12 0%,#05080d 52%,#080d13 100%)}
+.noise{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E")}
+.hud{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;pointer-events:none}
+.topbar{height:76px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 34px;border-bottom:1px solid rgba(151,190,214,.09);background:linear-gradient(180deg,rgba(5,8,13,.88),rgba(5,8,13,.45));backdrop-filter:blur(18px);pointer-events:auto}
+.brand{display:flex;align-items:center;gap:13px}
+.brand-mark{width:30px;height:30px;border:1px solid rgba(105,230,238,.55);border-radius:10px;display:grid;place-items:center;transform:rotate(45deg);box-shadow:0 0 24px rgba(105,230,238,.09)}
+.brand-mark span{width:9px;height:9px;border-radius:3px;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+.brand-copy{display:flex;flex-direction:column;gap:3px}
+.brand h1{margin:0;font-size:15px;letter-spacing:.28em;font-weight:650}
+.brand small{color:var(--muted);font-size:9px;letter-spacing:.16em;text-transform:uppercase}
+.top-right{display:flex;align-items:center;gap:25px;color:var(--muted);font-size:10px;letter-spacing:.08em}
+.top-item{display:flex;align-items:center;gap:8px}
+.top-item b{color:#c5d8df;font-weight:500;letter-spacing:.04em}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#79d9b3;box-shadow:0 0 12px rgba(121,217,179,.65)}
+.user-chip{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:#b5c7ce}
+.layout{position:relative;flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(340px,1fr) 340px;gap:20px;padding:22px 26px 24px;pointer-events:none}
+.column{display:flex;flex-direction:column;gap:14px;min-height:0;pointer-events:none}
+.panel{position:relative;padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(145deg,rgba(15,25,36,.82),rgba(8,14,22,.72));backdrop-filter:blur(22px);box-shadow:0 18px 55px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025);pointer-events:auto;overflow:hidden}
+.panel::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(135deg,rgba(105,230,238,.035),transparent 42%)}
+.title{position:relative;margin-bottom:16px;color:#a9bdc6;font-size:10px;font-weight:650;letter-spacing:.16em;text-transform:uppercase}
+.title::after{content:"";display:block;width:24px;height:1px;margin-top:10px;background:linear-gradient(90deg,var(--cyan),transparent)}
+.row{display:flex;align-items:center;justify-content:space-between;margin:13px 0;color:var(--muted);font-size:11px}
+.row b{color:#d5e3e8;font-size:11px;font-weight:550}
+.orange{color:var(--amber)!important}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{padding:12px;border:1px solid rgba(151,190,214,.09);border-radius:13px;background:rgba(255,255,255,.018)}
+.stat span{display:block;margin-bottom:8px;color:var(--muted);font-size:9px;letter-spacing:.09em;text-transform:uppercase}
+.stat b{color:#e3eef2;font-size:17px;font-weight:550;letter-spacing:-.03em}
+.bar{height:4px;margin-top:10px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.07)}
+.bar i{display:block;width:18%;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--amber));box-shadow:0 0 14px rgba(105,230,238,.3);transition:width .35s ease}
+.state-list div{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(151,190,214,.07);color:#6f838d;font-size:11px;letter-spacing:.04em}
+.state-list div:last-child{border-bottom:0}
+.state-list .active{color:var(--cyan)}
+.state-list .active span{color:var(--cyan);text-shadow:0 0 12px var(--cyan)}
+.state-list span{color:#40515b}
+.grow{flex:1;min-height:0}
+.log{color:#8297a1;font-size:10px;line-height:1.9;overflow:auto}
+.log b{color:var(--cyan);font-weight:600}
+.security-copy{color:#8ca0aa;font-size:11px;line-height:1.7}
+.security-copy b{color:#c9d8de;font-weight:550}
+.core-area{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;overflow:visible;pointer-events:none}
+.core-title{position:absolute;top:3%;z-index:5;text-align:center}
+.core-title strong{display:block;color:#e2f1f4;font-size:12px;font-weight:550;letter-spacing:.34em}
+.core-title span{display:block;margin-top:8px;color:#78919d;font-size:9px;letter-spacing:.2em;text-transform:uppercase}
+.core-caption{position:absolute;bottom:17%;z-index:5;text-align:center;color:#718894;font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.core-caption b{display:block;margin-top:9px;color:#d9edf0;font-size:12px;font-weight:550;letter-spacing:.12em}
+.voice{position:absolute;bottom:3%;z-index:6;display:flex;align-items:center;gap:10px;pointer-events:auto}
+.wake,.mic{height:44px;border:1px solid rgba(105,230,238,.24);border-radius:999px;background:rgba(11,24,33,.82);color:#cde5e9;backdrop-filter:blur(14px);transition:transform .2s,border-color .2s,background .2s,box-shadow .2s}
+.wake{padding:0 19px;font-size:10px;font-weight:650;letter-spacing:.12em}
+.mic{width:46px;font-size:16px;color:var(--cyan)}
+.wake:hover,.mic:hover{transform:translateY(-2px);border-color:var(--cyan);background:rgba(25,55,65,.86);box-shadow:0 8px 25px rgba(42,179,191,.12)}
+.mic.active{color:var(--amber);border-color:var(--amber);box-shadow:0 0 24px rgba(230,168,108,.18);animation:micPulse .8s infinite}
+.vstatus{padding:0 13px;color:#8198a2;font-size:9px;letter-spacing:.08em}
+.chat{display:flex;flex-direction:column;height:min(430px,54%);min-height:310px}
+.messages{flex:1;min-height:0;overflow:auto;color:#b1c3ca;font-size:12px;line-height:1.75;padding-right:4px}
+.messages div{margin:10px 0;padding:10px 12px;border:1px solid rgba(151,190,214,.07);border-radius:12px;background:rgba(255,255,255,.018)}
+.messages b{display:block;margin-bottom:3px;color:var(--cyan);font-size:9px;letter-spacing:.1em;font-weight:650}
+.input{display:flex;gap:8px;margin-top:13px}
+.input input{flex:1;min-width:0;padding:12px 13px;border:1px solid rgba(151,190,214,.14);border-radius:12px;outline:none;background:rgba(2,8,13,.72);color:var(--text);font-size:11px}
+.input input:focus{border-color:rgba(105,230,238,.5);box-shadow:0 0 0 3px rgba(105,230,238,.06)}
+.input button{padding:0 15px;border:1px solid rgba(105,230,238,.3);border-radius:12px;background:rgba(105,230,238,.1);color:#bff5f5;font-size:10px;font-weight:650;letter-spacing:.1em}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quick button{padding:11px 9px;border:1px solid rgba(151,190,214,.11);border-radius:11px;background:rgba(255,255,255,.025);color:#a7bbc3;font-size:9px;font-weight:550;letter-spacing:.04em;transition:.2s}
+.quick button:hover,.quick button.active{border-color:rgba(105,230,238,.38);background:rgba(105,230,238,.07);color:#d8fbfc}
+.quick button:last-child:nth-child(odd){grid-column:1/-1}
+.activity-panel{min-height:120px}
+@keyframes micPulse{50%{transform:scale(1.06)}}
+@media(max-width:1100px){.layout{grid-template-columns:210px minmax(260px,1fr) 300px;gap:12px;padding:16px}.topbar{padding:0 22px}.panel{padding:15px}}
+@media(max-width:820px){
+  html,body{overflow:hidden}
+  .topbar{height:64px;padding:0 18px}
+  .top-right .top-item:nth-child(2),.user-chip{display:none}
+  .layout{display:block;padding:0}
+  .column{display:none}
+  .core-area{position:absolute;inset:0}
+  .core-title{top:7%}
+  .core-caption{bottom:21%}
+  .voice{bottom:8%;gap:7px}
+  .vstatus{font-size:8px;padding:0 8px}
+  .wake{padding:0 14px}
+}
+@media(max-height:720px) and (min-width:821px){.layout{padding-top:12px;padding-bottom:12px}.panel{padding:13px}.column{gap:9px}.chat{height:43%;min-height:245px}.core-title{top:0}.core-caption{bottom:14%}.voice{bottom:0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
-
 <script type="importmap">
-{
-"imports":{
-"three":
-"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js"
-}
-}
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js"}}
 </script>
-
 </head>
-
 <body>
-
 <div id="scene"></div>
-
-<div class="grid"></div>
-<div class="scanlines"></div>
-<div class="vignette"></div>
-
+<div class="ambient-bg"></div>
+<div class="noise"></div>
 <div class="hud">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><span></span></div>
+      <div class="brand-copy"><h1>HIVAI</h1><small>Hive Intelligence · Personal System</small></div>
+    </div>
+    <div class="top-right">
+      <span class="top-item"><i class="dot"></i><span>CORE</span><b id="status">SLEEP</b></span>
+      <span class="top-item"><span>LOCAL TIME</span><b id="clock">--:--:--</b></span>
+      <span class="top-item"><span>GATEWAY</span><b id="gateway">CHECKING</b></span>
+      <span class="user-chip">PERSONAL INSTANCE</span>
+    </div>
+  </header>
+  <main class="layout">
+    <aside class="column">
+      <section class="panel">
+        <div class="title">System overview</div>
+        <div class="row"><span>Core state</span><b id="coreStatus">SLEEP</b></div>
+        <div class="row"><span>Neural engine</span><b id="brainStatus">STANDBY</b></div>
+        <div class="row"><span>Voice interface</span><b>READY</b></div>
+        <div class="row"><span>Conversation memory</span><b>LOCAL</b></div>
+      </section>
+      <section class="panel">
+        <div class="title">Live telemetry</div>
+        <div class="statgrid">
+          <div class="stat"><span>Core energy</span><b id="energy">18%</b></div>
+          <div class="stat"><span>Stability</span><b>98.7%</b></div>
+          <div class="stat"><span>Latency</span><b id="latency">-- MS</b></div>
+          <div class="stat"><span>Mode</span><b class="orange" id="mode">SLEEP</b></div>
+        </div>
+        <div class="row"><span>Reactor activity</span><b id="load">8%</b></div>
+        <div class="bar"><i id="energyBar" style="width:18%"></i></div>
+      </section>
+      <section class="panel">
+        <div class="title">Neural states</div>
+        <div class="state-list">
+          <div id="idle" class="active">Standby <span>●</span></div>
+          <div id="wakeState">Awake <span>○</span></div>
+          <div id="listen">Listening <span>○</span></div>
+          <div id="think">Thinking <span>○</span></div>
+          <div id="speak">Speaking <span>○</span></div>
+        </div>
+      </section>
+      <section class="panel grow">
+        <div class="title">Privacy architecture</div>
+        <div class="security-copy"><b>Private by design.</b><br>Provider credentials stay on the server. Conversation history is stored locally in this browser. The interface communicates through the secure HIVAI gateway.</div>
+      </section>
+    </aside>
 
-<header class="topbar">
+    <section class="core-area" id="coreArea">
+      <div class="core-title"><strong>NEURAL CORE</strong><span>Adaptive intelligence system · v4</span></div>
+      <div class="core-caption">System status <b id="state">SLEEPING // AWAITING COMMAND</b></div>
+      <div class="voice">
+        <button class="wake" id="wakeBtn">WAKE SYSTEM</button>
+        <button class="mic" id="mic" aria-label="Voice input">◉</button>
+        <div class="vstatus" id="vs">VOICE LINK · READY</div>
+      </div>
+    </section>
 
-<div class="brand">
-
-<div class="diamond"></div>
-
-<div>
-
-<h1>HIVAI</h1>
-
-<small>
-HIVE INTELLIGENCE VIRTUAL AI SYSTEM // 3D CORE
-</small>
-
+    <aside class="column">
+      <section class="panel chat">
+        <div class="title">HIVAI · Conversation</div>
+        <div class="messages" id="messages"><div><b>HIVAI</b>I'm in standby. Wake the system or send me a message when you're ready.</div></div>
+        <div class="input"><input id="input" placeholder="Talk to HIVAI..." autocomplete="off"><button id="send">SEND</button></div>
+      </section>
+      <section class="panel">
+        <div class="title">Quick actions</div>
+        <div id="ambientStatus" style="font-size:9px;color:var(--muted);margin:-5px 0 12px">AMBIENT AUDIO · OFF</div>
+        <div class="quick">
+          <button data-cmd="Wake up HIVAI">Wake system</button>
+          <button data-cmd="System status">System status</button>
+          <button data-cmd="Run a core diagnostic">Run diagnostics</button>
+          <button data-cmd="Sleep mode">Standby mode</button>
+          <button id="ambientBtn" aria-pressed="false">Ambient audio</button>
+        </div>
+      </section>
+      <section class="panel grow activity-panel">
+        <div class="title">Activity stream</div>
+        <div class="log" id="log">
+          <div>[BOOT] <b>SYSTEM</b> Neural interface initialized</div>
+          <div>[BOOT] <b>SECURITY</b> Server credentials isolated</div>
+          <div>[BOOT] <b>VOICE</b> Browser voice channel ready</div>
+          <div>[BOOT] <b>CORE</b> Standby state initialized</div>
+        </div>
+      </section>
+    </aside>
+  </main>
 </div>
-
-</div>
-
-<div class="topstats">
-
-<span>
-STATUS
-<b>
-<i class="dot"></i>
-<span id="status">SLEEP</span>
-</b>
-</span>
-
-<span>
-LOCAL
-<b id="clock">--:--:--</b>
-</span>
-
-<span>
-GATEWAY
-<b id="gateway">CHECKING</b>
-</span>
-
-<span>SIR // USER</span>
-
-</div>
-
-</header>
-
-<main class="layout">
-
-<!-- LEFT -->
-
-<aside class="column">
-
-<section class="panel">
-
-<div class="title">
-SYSTEM // CORE STATUS
-</div>
-
-<div class="row">
-<span>CORE</span>
-<b id="coreStatus">SLEEP</b>
-</div>
-
-<div class="row">
-<span>BRAIN</span>
-<b id="brainStatus">STANDBY</b>
-</div>
-
-<div class="row">
-<span>VOICE</span>
-<b>READY</b>
-</div>
-
-<div class="row">
-<span>MEMORY</span>
-<b>LOCAL</b>
-</div>
-
-</section>
-
-
-<section class="panel">
-
-<div class="title">
-ENERGY MATRIX
-</div>
-
-<div class="statgrid">
-
-<div class="stat">
-<span>CORE ENERGY</span>
-<b id="energy">18%</b>
-</div>
-
-<div class="stat">
-<span>STABILITY</span>
-<b>98.7%</b>
-</div>
-
-<div class="stat">
-<span>LATENCY</span>
-<b id="latency">-- MS</b>
-</div>
-
-<div class="stat">
-<span>MODE</span>
-<b class="orange" id="mode">SLEEP</b>
-</div>
-
-</div>
-
-<div class="row">
-<span>REACTOR LOAD</span>
-<b id="load">8%</b>
-</div>
-
-<div class="bar">
-<i id="energyBar" style="width:18%"></i>
-</div>
-
-</section>
-
-
-<section class="panel">
-
-<div class="title">
-STATE ENGINE
-</div>
-
-<div class="state-list">
-
-<div id="idle" class="active">
-SLEEP
-<span>●</span>
-</div>
-
-<div id="wakeState">
-WAKE
-<span>○</span>
-</div>
-
-<div id="listen">
-LISTENING
-<span>○</span>
-</div>
-
-<div id="think">
-THINKING
-<span>○</span>
-</div>
-
-<div id="speak">
-SPEAKING
-<span>○</span>
-</div>
-
-</div>
-
-</section>
-
-
-<section class="panel grow">
-
-<div class="title">
-SECURITY // LOCAL
-</div>
-
-<div class="log">
-
-<b>CLIENT KEY</b> NONE
-<br>
-
-<b>SERVER SECRETS</b> PROTECTED
-<br>
-
-<b>VOICE</b> BROWSER CHANNEL
-<br>
-
-<b>3D ENGINE</b> WEBGL
-<br><br>
-
-HIVAI UI never needs the provider key.
-<br>
-
-The browser communicates with the secure HIVAI gateway.
-
-</div>
-
-</section>
-
-</aside>
-
-
-<!-- CORE -->
-
-<section
-class="core-area"
-id="coreArea"
->
-
-<div class="core-title">
-
-<strong>
-HIVAI CORE
-</strong>
-
-<span>
-// ENERGY INTELLIGENCE NEXUS
-</span>
-
-</div>
-
-<div class="state">
-
-SYSTEM //
-
-<b id="state">
-SLEEPING // AWAITING COMMAND
-</b>
-
-</div>
-
-<div class="voice">
-
-<button
-class="wake"
-id="wakeBtn"
->
-WAKE CORE
-</button>
-
-<button
-class="mic"
-id="mic"
-aria-label="Voice input"
->
-◉
-</button>
-
-<div
-class="vstatus"
-id="vs"
->
-VOICE LINK // READY
-</div>
-
-</div>
-
-</section>
-
-
-<!-- RIGHT -->
-
-<aside class="column">
-
-<section class="panel chat">
-
-<div class="title">
-HIVAI // BRAIN CONSOLE
-</div>
-
-<div
-class="messages"
-id="messages"
->
-
-<div>
-<b>HIVAI:</b>
-Core is sleeping.
-Press WAKE CORE or the microphone to activate me.
-</div>
-
-</div>
-
-<div class="input">
-
-<input
-id="input"
-placeholder="Command HIVAI..."
-autocomplete="off"
->
-
-<button id="send">
-SEND
-</button>
-
-</div>
-
-</section>
-
-
-<section class="panel">
-
-<div class="title">
-QUICK COMMANDS
-</div>
-<div id="ambientStatus" style="font-size:7px;color:var(--muted);margin:-5px 0 9px">AMBIENT // OFF</div>
-
-<div class="quick">
-
-<button data-cmd="Wake up HIVAI">
-WAKE CORE
-</button>
-
-<button data-cmd="System status">
-SYSTEM STATUS
-</button>
-
-<button data-cmd="Run a core diagnostic">
-CORE DIAGNOSTIC
-</button>
-
-<button data-cmd="Sleep mode">
-SLEEP CORE
-</button>
-
-<button id="ambientBtn" aria-pressed="false">
-AMBIENT SOUND
-</button>
-
-</div>
-
-</section>
-
-
-<section class="panel grow">
-
-<div class="title">
-ACTIVITY // LIVE
-</div>
-
-<div
-class="log"
-id="log"
->
-
-<div>
-[BOOT]
-<b>SYSTEM</b>
-3D core online
-</div>
-
-<div>
-[BOOT]
-<b>SECURITY</b>
-Client holds no AI key
-</div>
-
-<div>
-[BOOT]
-<b>VOICE</b>
-Browser voice channel ready
-</div>
-
-<div>
-[BOOT]
-<b>CORE</b>
-Sleep mode initialized
-</div>
-
-</div>
-
-</section>
-
-</aside>
-
-</main>
-
-</div>
-
-
 <script type="module" src="./main.js"></script>
 </body>
 </html>
