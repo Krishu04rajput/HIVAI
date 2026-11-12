@@ -67,14 +67,15 @@ function makeNucleusParticles(count) {
   for (let i = 0; i < count; i++) {
     const u = Math.random() * 2 - 1;
     const a = Math.random() * Math.PI * 2;
-    const r = 12 + Math.random() * 18;
+    const r = 7 + Math.pow(Math.random(), 0.72) * 28;
     const s = Math.sqrt(1 - u * u);
     positions[i * 3] = Math.cos(a) * s * r;
     positions[i * 3 + 1] = u * r;
     positions[i * 3 + 2] = Math.sin(a) * s * r;
 
-    const color = Math.random() > 0.76 ? ORANGE : CYAN;
-    sizes[i] = 0.7 + Math.random() * 1.5;
+    const tone = Math.random();
+    const color = tone > 0.965 ? ORANGE : tone > 0.58 ? ICE : CYAN;
+    sizes[i] = 0.45 + Math.random() * 1.25;
     colors[i * 3] = color.r;
     colors[i * 3 + 1] = color.g;
     colors[i * 3 + 2] = color.b;
@@ -164,7 +165,7 @@ export function createHIVAICore(container, onMetrics = () => {}) {
   root.add(nucleusGroup);
 
   const nucleusMaterial = particleMaterial(mobile ? 3.2 : 3.8, 1);
-  const nucleusPoints = new THREE.Points(makeNucleusParticles(mobile ? 650 : 1500), nucleusMaterial);
+  const nucleusPoints = new THREE.Points(makeNucleusParticles(mobile ? 1100 : 3200), nucleusMaterial);
   nucleusGroup.add(nucleusPoints);
 
   const glowMap = makeGlowTexture();
@@ -179,32 +180,52 @@ export function createHIVAICore(container, onMetrics = () => {}) {
     map: glowMap, color: ORANGE, transparent: true, opacity: 0.82,
     blending: THREE.AdditiveBlending, depthWrite: false
   }));
-  orangeGlow.scale.set(112, 112, 1);
+  orangeGlow.scale.set(84, 84, 1);
   nucleusGroup.add(orangeGlow);
 
+  // Smooth luminous nucleus wrapped in a restrained Fresnel energy shell.
   const heart = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(13, 3),
-    new THREE.MeshBasicMaterial({ color: 0xffbd72, transparent: true, opacity: 0.96 })
+    new THREE.SphereGeometry(9.5, 64, 64),
+    new THREE.MeshBasicMaterial({
+      color: 0xd9fbff, transparent: true, opacity: 0.96,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    })
   );
   nucleusGroup.add(heart);
 
-  const heartWire = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(22, 2),
-    new THREE.MeshBasicMaterial({
-      color: ORANGE, wireframe: true, transparent: true,
-      opacity: 0.62, blending: THREE.AdditiveBlending
+  const energyShell = new THREE.Mesh(
+    new THREE.SphereGeometry(25, 64, 64),
+    new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uPulse: { value: 0.2 } },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vView;
+        void main() {
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vNormal = normalize(normalMatrix * normal);
+          vView = normalize(-mv.xyz);
+          gl_Position = projectionMatrix * mv;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uPulse;
+        varying vec3 vNormal;
+        varying vec3 vView;
+        void main() {
+          float fresnel = pow(1.0 - max(dot(normalize(vNormal), normalize(vView)), 0.0), 2.2);
+          float flow = 0.72 + 0.28 * sin(uTime * 1.7 + vNormal.y * 5.0);
+          vec3 cyan = vec3(0.12, 0.82, 1.0);
+          vec3 pearl = vec3(0.72, 0.96, 1.0);
+          vec3 color = mix(cyan, pearl, fresnel * 0.72);
+          float alpha = (0.08 + fresnel * 0.48) * flow * (0.8 + uPulse * 0.2);
+          gl_FragColor = vec4(color, alpha);
+        }
+      `
     })
   );
-  nucleusGroup.add(heartWire);
-
-  const shell = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(48, 2),
-    new THREE.MeshBasicMaterial({
-      color: CYAN, wireframe: true, transparent: true,
-      opacity: 0.14, blending: THREE.AdditiveBlending
-    })
-  );
-  root.add(shell);
+  nucleusGroup.add(energyShell);
 
   function makeRing(radius, tube, color, opacity, rotation) {
     const ring = new THREE.Mesh(
@@ -312,12 +333,12 @@ export function createHIVAICore(container, onMetrics = () => {}) {
     nucleusGroup.rotation.y += dt * 0.34 * speed;
     nucleusGroup.rotation.x = Math.sin(elapsed * 0.42) * 0.13;
     nucleusPoints.rotation.z -= dt * 0.22 * speed;
-    heartWire.rotation.x += dt * 0.24 * speed;
-    heartWire.rotation.y -= dt * 0.31 * speed;
-    heart.scale.setScalar(1 + pulse * 0.12 + Math.sin(elapsed * 3.2) * 0.035);
-    shell.rotation.x += dt * 0.035;
-    shell.rotation.y -= dt * 0.055;
-    shell.scale.setScalar(1 + pulse * 0.035);
+    heart.scale.setScalar(1 + pulse * 0.045 + Math.sin(elapsed * 2.1) * 0.018);
+    energyShell.rotation.y += dt * 0.055 * speed;
+    energyShell.rotation.x = Math.sin(elapsed * 0.22) * 0.08;
+    energyShell.scale.setScalar(1 + pulse * 0.018);
+    energyShell.material.uniforms.uTime.value = elapsed;
+    energyShell.material.uniforms.uPulse.value = pulse;
 
     galaxyMaterial.uniforms.uTime.value = elapsed;
     galaxyMaterial.uniforms.uPulse.value = pulse;
@@ -328,8 +349,8 @@ export function createHIVAICore(container, onMetrics = () => {}) {
 
     cyanGlow.material.opacity = config.glow * (0.72 + pulse * 0.12);
     cyanGlow.scale.setScalar(210 + pulse * 30);
-    orangeGlow.material.opacity = 0.56 + pulse * 0.28;
-    orangeGlow.scale.setScalar(100 + pulse * 24);
+    orangeGlow.material.opacity = 0.22 + pulse * 0.12;
+    orangeGlow.scale.setScalar(76 + pulse * 12);
 
     rings.forEach((ring, index) => {
       ring.rotation.z += dt * (index % 2 ? -1 : 1) * (0.025 + index * 0.004) * speed;
