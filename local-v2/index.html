@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#02070b" />
+  <title>HIVAI — Local Core</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">HIVE INTELLIGENCE VIRTUAL AI SYSTEM</div>
+        <h1>HIVAI <span>LOCAL CORE</span></h1>
+      </div>
+      <div class="system-pill"><i></i><span id="runtime">LOCAL RUNTIME</span></div>
+    </header>
+
+    <section class="hud">
+      <div class="core-panel">
+        <div id="core" class="core" aria-label="HIVAI core">
+          <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+          <div class="nucleus"></div><div class="spark s1"></div><div class="spark s2"></div><div class="spark s3"></div>
+        </div>
+        <div class="core-state" id="coreState">SLEEP // LOCAL</div>
+      </div>
+
+      <aside class="side-panel">
+        <section class="card">
+          <div class="card-title">BRAIN STATUS</div>
+          <div class="metric"><span>Inference</span><b id="inference">OFFLINE</b></div>
+          <div class="metric"><span>Model</span><b id="modelStatus">NOT LOADED</b></div>
+          <div class="metric"><span>Memory</span><b id="memoryStatus">LOCAL</b></div>
+          <div class="metric"><span>Network</span><b id="networkStatus">NOT REQUIRED</b></div>
+        </section>
+
+        <section class="card">
+          <div class="card-title">LOCAL CAPABILITIES</div>
+          <div class="chips">
+            <span>CHAT</span><span>MEMORY</span><span>LEARNING</span><span>CODE</span><span>3D</span><span>VISION</span><span>VOICE</span>
+          </div>
+        </section>
+
+        <section class="card log-card">
+          <div class="card-title">SYSTEM LOG</div>
+          <div id="log" class="log"></div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="chat card">
+      <div class="card-title">HIVAI CONSOLE</div>
+      <div id="messages" class="messages">
+        <div class="system-msg">Local core initialized. Load a local model to activate inference.</div>
+      </div>
+      <form id="chatForm" class="composer">
+        <input id="prompt" autocomplete="off" placeholder="Talk to HIVAI..." />
+        <button type="submit">SEND</button>
+      </form>
+    </section>
+
+    <section class="tools card">
+      <div class="card-title">LOCAL TOOL MATRIX</div>
+      <div class="tool-grid">
+        <button data-tool="memory">MEMORY</button>
+        <button data-tool="learn">LEARN</button>
+        <button data-tool="code">CODE</button>
+        <button data-tool="3d">3D STUDIO</button>
+        <button data-tool="diagnostic">DIAGNOSTIC</button>
+        <button data-tool="offline">OFFLINE TEST</button>
+      </div>
+      <pre id="toolOutput" class="tool-output">Ready.</pre>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
